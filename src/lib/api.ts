@@ -1,5 +1,5 @@
 export const BASE_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8090";
+    process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://ablematchbackend-1.onrender.com";
 
 export async function apiFetch<T>(
     path: string,
