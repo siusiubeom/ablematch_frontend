@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {useEffect, useMemo, useState} from "react";
 import {
     Briefcase,
     MessageSquare,
@@ -87,20 +87,29 @@ export default function Dashboard() {
     }, [jobs]);
 
     const SKILL_MAP: Record<string, string[]> = {
-        "전공 일치": [profile?.major ?? ""],
-        "스킬 일치": ["Backend", "Spring", "API"],
-        "재택 가능": ["Remote work"],
+        "전공 적합": [profile?.major ?? ""],
+        "기술 스택": ["Spring", "Backend"],
+        "재택근무 가능": ["Remote"],
     };
+    const skills = useMemo(() => {
+        if (!profile) return [];
 
-    const skills = Array.from(
-        new Set(
-            jobs.flatMap((job) =>
-                job.highlights.flatMap(
-                    (h) => SKILL_MAP[h] ?? []
+        return Array.from(
+            new Set(
+                jobs.flatMap((job) =>
+                    job.highlights.flatMap(
+                        (h) => SKILL_MAP[h] ?? []
+                    )
                 )
             )
-        )
-    ).filter(Boolean);
+        ).filter(Boolean);
+    }, [jobs, profile]);
+
+    useEffect(() => {
+        console.log("PROFILE:", profile);
+        console.log("SKILLS:", skills);
+    }, [profile, skills]);
+
 
     useEffect(() => {
         if (skills.length === 0) return;
