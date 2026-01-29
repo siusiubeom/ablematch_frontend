@@ -42,12 +42,12 @@ export default function LandingHero({
             const formData = new FormData();
             formData.append("file", file);
 
-            await fetch("http://localhost:8090/api/resume/upload", {
+            await fetch("https://ablematchbackend-1.onrender.com/api/resume/upload", {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData,
             });
-            await fetch("http://localhost:8090/api/me/profile/from-resume", {
+            await fetch("https://ablematchbackend-1.onrender.com/api/me/profile/from-resume", {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData,
