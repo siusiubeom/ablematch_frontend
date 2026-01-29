@@ -108,7 +108,10 @@ export default function Dashboard() {
         apiFetch<RecommendedCourse[]>(
             `/api/courses/by-skills?` +
             skills.map((s) => `skills=${encodeURIComponent(s)}`).join("&")
-        ).then(setCourses);
+        ).then((res) => {
+            if (!res) return;
+            setCourses(res);
+        });
     }, [skills]);
 
 
