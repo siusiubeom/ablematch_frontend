@@ -23,6 +23,10 @@ export default function LoginPage() {
                 body: JSON.stringify({ email, password }),
             });
 
+            if (!res) {
+                throw new Error("Login failed");
+            }
+
             setToken(res.accessToken);
 
             const profileRes = await apiFetchRaw("/api/me/profile");
