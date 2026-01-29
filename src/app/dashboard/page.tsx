@@ -66,12 +66,20 @@ export default function Dashboard() {
 
 
     useEffect(() => {
-        apiFetch<{ status: string; data: MatchingCard[] }>("/api/matching")
-            .then((res) => {
-                if (res.status === "READY") {
-                    setJobs(res.data.slice(0, 20));
-                }
-            });
+        const loadMatching = async () => {
+            const res = await apiFetch<{
+                status: string;
+                data: MatchingCard[];
+            }>("/api/matching");
+
+            if (!res) return;
+
+            if (res.status === "READY") {
+                setJobs(res.data.slice(0, 20));
+            }
+        };
+
+        loadMatching();
     }, []);
 
     useEffect(() => {

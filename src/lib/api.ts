@@ -17,7 +17,6 @@ export async function apiFetch<T>(
     });
 
     if (!res.ok) {
-        // DO NOT THROW — EVER
         console.warn(
             `[apiFetch] ${res.status} ${path}`,
             await res.text()
