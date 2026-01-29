@@ -17,15 +17,19 @@ export async function apiFetch<T>(
     });
 
     if (!res.ok) {
-        console.warn(
-            `[apiFetch] ${res.status} ${path}`,
-            await res.text()
-        );
+        const text = await res.text();
+        const error: any = new Error(text || "API error");
+        error.status = res.status;
+        throw error;
+    }
+
+    if (res.status === 204 || res.headers.get("content-length") === "0") {
         return null;
     }
 
     return res.json();
 }
+
 
 export async function apiFetchRaw(
     path: string,
