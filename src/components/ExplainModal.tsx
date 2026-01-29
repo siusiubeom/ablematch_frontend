@@ -13,19 +13,43 @@ interface Props {
 export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
 
 
-    function gaussianRandom(mean = 0, stdDev = 1) {
-        let u = 0, v = 0;
-        while (u === 0) u = Math.random();
-        while (v === 0) v = Math.random();
-        return mean + stdDev * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    function mulberry32(seed: number) {
+        return function () {
+            let t = seed += 0x6D2B79F5;
+            t = Math.imul(t ^ (t >>> 15), t | 1);
+            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
     }
-
-    function withNoise(value: number, min: number, max: number, noise = 8) {
-        const jitter = gaussianRandom(0, noise);
+    function seededNoise(seed: number, stdDev = 8) {
+        const rand = mulberry32(seed);
+        rand();
+        let u = rand() || 0.0001;
+        let v = rand() || 0.0001;
+        return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v) * stdDev;
+    }
+    function withSeededNoise(
+        value: number,
+        min: number,
+        max: number,
+        seed: number,
+        channel: number
+    ) {
+        const range = max - min;
+        const stdDev = Math.min(6, range * 0.08); // adaptive
+        const jitter = seededNoise(seed + channel * 101, stdDev);
         return Math.min(max, Math.max(min, Math.round(value + jitter)));
     }
 
+    function hashString(str: string) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = Math.imul(31, hash) + str.charCodeAt(i);
+        }
+        return hash >>> 0;
+    }
 
+    const seed = hashString(data.jobTitle);
 
     const weights = {
         skill: 0.5,
@@ -40,10 +64,15 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
     };
 
     const normalized = {
-        skill: withNoise(base.skill, 45, 92),
-        accessibility: withNoise(base.accessibility, 40, 88),
-        workType: withNoise(base.workType, 35, 85),
+        skill: withSeededNoise(base.skill, 45, 92, seed, 1),
+        accessibility: withSeededNoise(base.accessibility, 40, 88, seed, 2),
+        workType: withSeededNoise(base.workType, 35, 85, seed, 3),
     };
+
+
+
+
+
 
 
     return (
