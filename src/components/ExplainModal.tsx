@@ -50,6 +50,18 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
     }
 
     const seed = hashString(data.jobTitle);
+    const rng = mulberry32(seed);
+
+    const roleBase = [
+        78 + rng() * 6,
+        66 + rng() * 6,
+        58 + rng() * 6,
+    ];
+
+    if (rng() > 0.6) {
+        [roleBase[1], roleBase[2]] = [roleBase[2], roleBase[1]];
+    }
+
 
     const weights = {
         skill: 0.5,
@@ -64,9 +76,9 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
     };
 
     const normalized = {
-        skill: withSeededNoise(base.skill, 45, 92, seed, 1),
-        accessibility: withSeededNoise(base.accessibility, 40, 88, seed, 2),
-        workType: withSeededNoise(base.workType, 35, 85, seed, 3),
+        skill: Math.round(Math.min(92, Math.max(55, roleBase[0]))),
+        accessibility: Math.round(Math.min(88, Math.max(50, roleBase[1]))),
+        workType: Math.round(Math.min(85, Math.max(45, roleBase[2]))),
     };
 
 
