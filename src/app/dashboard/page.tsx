@@ -110,18 +110,26 @@ export default function Dashboard() {
         console.log("SKILLS:", skills);
     }, [profile, skills]);
 
+    const effectiveSkills =
+        skills.length > 0
+            ? skills
+            : profile?.major
+                ? [profile.major]
+                : [];
+
 
     useEffect(() => {
-        if (skills.length === 0) return;
+        if (effectiveSkills.length === 0) return;
 
         apiFetch<RecommendedCourse[]>(
             `/api/courses/by-skills?` +
-            skills.map((s) => `skills=${encodeURIComponent(s)}`).join("&")
-        ).then((res) => {
+            effectiveSkills.map(s => `skills=${encodeURIComponent(s)}`).join("&")
+        ).then(res => {
             if (!res) return;
             setCourses(res);
         });
-    }, [skills]);
+    }, [effectiveSkills]);
+
 
 
     async function openExplain(job: MatchingCard) {
