@@ -1,6 +1,8 @@
 "use client";
 
 import { MatchingExplain } from "@/lib/types";
+import {useEffect, useState} from "react";
+import {apiFetch} from "@/lib/api";
 
 interface Props {
     data: MatchingExplain;
@@ -81,6 +83,29 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
         workType: Math.round(Math.min(85, Math.max(45, roleBase[2]))),
     };
 
+    const [latlng, setLatlng] = useState<{ lat: number; lng: number } | null>(null);
+
+
+    useEffect(() => {
+        if (!data.jobTitle) return;
+
+        apiFetch<any>(
+            `/api/maps/geocode?query=${encodeURIComponent(data.jobTitle)}`
+        )
+            .then((res) => {
+                if (res?.lat != null && res?.lng != null) {
+                    setLatlng({
+                        lat: Number(res.lat),
+                        lng: Number(res.lng),
+                    });
+                }
+            })
+            .catch((e) => {
+                console.error("GEOCODE ERROR:", e);
+            });
+    }, [data.jobTitle]);
+
+
 
 
 
@@ -90,7 +115,13 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
     return (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
             <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-6">
-
+                {latlng && (
+                    <iframe
+                        className="w-full h-32 rounded-lg mb-4"
+                        src={`https://map.naver.com/v5/search/${latlng.lat},${latlng.lng}`}
+                        loading="lazy"
+                    />
+                )}
                 <div className="flex justify-between items-start">
                     <div>
                         <h2 className="text-2xl font-extrabold text-[#1A365D]">

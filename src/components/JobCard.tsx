@@ -11,45 +11,14 @@ interface Props {
 }
 
 export default function JobCard({ job, onClick }: Props) {
-    const [latlng, setLatlng] = useState<{ lat: number; lng: number } | null>(
-        null
-    );
 
-    useEffect(() => {
-        console.log("JOBCARD MOUNT:", job.company);
-        if (!job.company) return;
-
-        apiFetch<any>(
-            `/api/maps/geocode?query=${encodeURIComponent(job.company)}`
-        )
-            .then((res) => {
-                if (res?.lat != null && res?.lng != null) {
-                    setLatlng({
-                        lat: Number(res.lat),
-                        lng: Number(res.lng),
-                    });
-                }
-            })
-            .catch((e) => {
-                console.error("GEOCODE ERROR:", e);
-            });
-    }, [job.company]);
 
     return (
         <div
             className="rounded-xl border p-6 relative overflow-hidden transition-shadow hover:shadow-md bg-white cursor-pointer"
             onClick={onClick}
         >
-            {/* 지도 */}
-            {latlng && (
-                <iframe
-                    className="w-full h-32 rounded-lg mb-4"
-                    src={`https://map.naver.com/v5/search/${latlng.lat},${latlng.lng}`}
-                    loading="lazy"
-                />
-            )}
 
-            {/* 적합도 뱃지 */}
             <div className="absolute top-0 right-0 p-4">
         <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full">
           적합도 {job.score}%
@@ -66,7 +35,6 @@ export default function JobCard({ job, onClick }: Props) {
                     <p className="text-sm text-gray-500">{job.company}</p>
                 </div>
             </div>
-=
             <div className="flex flex-wrap gap-2 mb-4">
                 {job.highlights.map((h) => (
                     <span
