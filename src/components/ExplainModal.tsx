@@ -79,45 +79,42 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
         if (!naverReady || !company) return;
 
         const mapDiv = document.getElementById("naver-map");
-        if (!mapDiv) {
-            console.log("MAP DIV NOT READY");
-            return;
-        }
+        if (!mapDiv) return;
 
         console.log("MAP INIT");
 
-        const geocoder = new window.naver.maps.Service.Geocoder();
+        window.naver.maps.Service.geocode(
+            { query: company },
+            (status: any, response: any) => {
+                if (status !== window.naver.maps.Service.Status.OK) {
+                    console.log("GEOCODE FAIL");
+                    return;
+                }
 
-        geocoder.geocode({ query: company }, (status: any, response: any) => {
-            if (status !== window.naver.maps.Service.Status.OK) {
-                console.log("GEOCODE FAIL", status);
-                return;
+                if (!response.v2.addresses.length) {
+                    console.log("NO ADDRESS");
+                    return;
+                }
+
+                const addr = response.v2.addresses[0];
+                const latlng = new window.naver.maps.LatLng(addr.y, addr.x);
+
+                const map = new window.naver.maps.Map(mapDiv, {
+                    center: latlng,
+                    zoom: 15,
+                });
+
+                new window.naver.maps.Marker({
+                    position: latlng,
+                    map,
+                });
+
+                console.log("MAP SUCCESS");
             }
-
-            if (!response.v2.addresses.length) {
-                console.log("NO ADDRESS");
-                return;
-            }
-
-            const result = response.v2.addresses[0];
-            const lat = parseFloat(result.y);
-            const lng = parseFloat(result.x);
-
-            const location = new window.naver.maps.LatLng(lat, lng);
-
-            const map = new window.naver.maps.Map(mapDiv, {
-                center: location,
-                zoom: 15,
-            });
-
-            new window.naver.maps.Marker({
-                position: location,
-                map,
-            });
-
-            console.log("MAP SUCCESS");
-        });
+        );
     }, [company, naverReady]);
+
+
 
 
 
