@@ -84,23 +84,24 @@ export default function LandingHero({ setLoading, setStep }: any) {
                         {/* Left */}
                         <div className="lg:col-span-7">
                             <motion.div
-                                initial={{ opacity: 0, y: 12 }}
+                                initial={{ opacity: 0, y: 24 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.7 }}
+                                transition={{ duration: 1.1, ease: "easeOut" }}
+                                className="pl-0 -ml-6"
                             >
-                                {/* LOGO — 더 크게 + 살짝 아래 */}
-                                <div className="relative w-full max-w-[920px] aspect-[3/1] -mt-4">
+                                {/* LOGO — bigger, lower, more left */}
+                                <div className="relative w-full max-w-[960px] aspect-[3/1] mt-12">
                                     <Image
                                         src="/ablematch_logo-Photoroom.png"
                                         alt="AbleMatch"
                                         fill
                                         priority
-                                        className="object-contain scale-[1.18]"
+                                        className="object-contain scale-[1.22]"
                                     />
                                 </div>
 
-                                {/* TEXT — 많이 아래로 */}
-                                <div className="mt-32">
+                                {/* TEXT — much lower */}
+                                <div className="mt-40">
                                     <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.03]">
                                         AI로 연결하는
                                         <span className="block text-[#2E75B6]">커리어 매칭</span>
@@ -115,12 +116,13 @@ export default function LandingHero({ setLoading, setStep }: any) {
 
 
 
+
                         {/* Right */}
                         <div className="lg:col-span-5">
                             <motion.div
                                 initial={{ opacity: 0, y: 14 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.08, duration: 0.7 }}
+                                transition={{ delay: 0.12, duration: 1.0, ease: "easeOut" }}
                                 onDragEnter={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
