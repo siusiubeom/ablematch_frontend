@@ -24,6 +24,8 @@ import JobCard from "@/components/JobCard";
 
 
 export default function Dashboard() {
+    console.log("=== DASHBOARD RENDER ===");
+
     const [authChecked, setAuthChecked] = useState(false);
     const [profileChecked, setProfileChecked] = useState(false);
     const [ready, setReady] = useState(false);
@@ -42,58 +44,68 @@ export default function Dashboard() {
         "latest" | "popular" | "likes" | "company"
     >("latest");
 
-
     const router = useRouter();
 
+    // ---------------- AUTH ----------------
     useEffect(() => {
+        console.log("[AUTH EFFECT] Checking token...");
         const token = getToken();
 
         if (!token) {
+            console.log("[AUTH] No token → redirect login");
             router.replace("/login");
             return;
         }
 
+        console.log("[AUTH] Token OK");
         setAuthChecked(true);
     }, [router]);
 
-
     function isProfileValid(p: UserProfile | null) {
+        console.log("[PROFILE VALIDATE]", p);
         if (!p) return false;
-        return !!(p.name);
+        return !!p.name;
     }
-
-
 
     function fetchMyProfile() {
+        console.log("[API] Fetching profile...");
         return apiFetch<UserProfile>("/api/me/profile");
     }
+
+    // ---------------- DEBUG MAPS ----------------
     useEffect(() => {
-        apiFetch("/api/maps/estimate-test").then(res => {
-            console.log("ESTIMATE TEST RESULT:", res);
+        apiFetch("/api/maps/estimate-test").then((res) => {
+            console.log("[MAP ESTIMATE TEST]", res);
         });
     }, []);
 
     useEffect(() => {
-        apiFetch("/api/maps/geocode-debug").then(res => {
-            console.log("GECODE DEBUG RESULT:", res);
+        apiFetch("/api/maps/geocode-debug").then((res) => {
+            console.log("[MAP GEOCODE DEBUG]", res);
         });
     }, []);
 
+    // ---------------- PROFILE LOAD ----------------
     useEffect(() => {
+        console.log("[PROFILE EFFECT] Loading profile...");
         const loadProfile = async () => {
             try {
                 const p = await fetchMyProfile();
+                console.log("[PROFILE LOADED]", p);
 
                 if (!isProfileValid(p)) {
+                    console.log("[PROFILE INVALID] redirect landing");
                     router.replace("/landing");
                     return;
                 }
 
                 setProfile(p);
                 setReady(true);
-            } catch {
+            } catch (e) {
+                console.error("[PROFILE ERROR]", e);
                 router.replace("/landing");
             } finally {
+                console.log("[PROFILE LOADING END]");
                 setProfileLoading(false);
             }
         };
@@ -101,114 +113,135 @@ export default function Dashboard() {
         loadProfile();
     }, [router]);
 
-
-
-
+    // ---------------- MATCHING ----------------
     useEffect(() => {
+        console.log("[MATCHING EFFECT] profile changed:", profile);
         if (!profile) return;
 
         const loadMatching = async () => {
+            console.log("[MATCHING] Fetching /api/matching...");
             const res = await apiFetch<{
                 status: string;
                 data: MatchingCard[];
             }>("/api/matching");
 
-            if (!res) return;
+            console.log("[MATCHING RESPONSE]", res);
+
+            if (!res) {
+                console.log("[MATCHING] null response");
+                return;
+            }
 
             if (res.status === "READY") {
+                console.log("[MATCHING READY] jobs:", res.data?.length);
                 setJobs(res.data.slice(0, 20));
+            } else {
+                console.log("[MATCHING NOT READY]", res.status);
             }
         };
 
         loadMatching();
     }, [profile]);
 
-
     useEffect(() => {
-        console.log("MATCHING JOB SAMPLE:", jobs[0]);
+        console.log("[JOBS CHANGED] sample:", jobs[0]);
     }, [jobs]);
 
+    // ---------------- SKILLS ----------------
     const SKILL_MAP: Record<string, string[]> = {
         "전공 적합": [profile?.major ?? ""],
         "기술 스택": ["Spring", "Backend"],
         "재택근무 가능": ["Remote"],
     };
+
     const skills = useMemo(() => {
+        console.log("[SKILLS MEMO] jobs:", jobs.length);
         if (!profile) return [];
 
-        return Array.from(
+        const result = Array.from(
             new Set(
                 jobs.flatMap((job) =>
-                    job.highlights.flatMap(
-                        (h) => SKILL_MAP[h] ?? []
-                    )
+                    job.highlights.flatMap((h) => SKILL_MAP[h] ?? [])
                 )
             )
         ).filter(Boolean);
+
+        console.log("[SKILLS RESULT]", result);
+        return result;
     }, [jobs, profile]);
 
     useEffect(() => {
-        console.log("PROFILE:", profile);
-        console.log("SKILLS:", skills);
+        console.log("[PROFILE STATE]", profile);
+        console.log("[SKILLS STATE]", skills);
     }, [profile, skills]);
 
-
     const effectiveSkills = useMemo(() => {
-        if (skills.length > 0) return skills;
-        if (profile?.major) return [profile.major];
-        return [];
+        const result =
+            skills.length > 0 ? skills : profile?.major ? [profile.major] : [];
+        console.log("[EFFECTIVE SKILLS]", result);
+        return result;
     }, [skills, profile?.major]);
 
     const lastSkillsRef = useRef<string>("");
 
     useEffect(() => {
+        console.log("[COURSE EFFECT] skills:", effectiveSkills);
         if (effectiveSkills.length === 0) return;
 
         const key = effectiveSkills.join(",");
-        if (lastSkillsRef.current === key) return;
+        if (lastSkillsRef.current === key) {
+            console.log("[COURSE SKIP] same key");
+            return;
+        }
+
         lastSkillsRef.current = key;
 
+        console.log("[COURSE FETCH]");
         apiFetch<RecommendedCourse[]>(
             `/api/courses/by-skills?` +
-            effectiveSkills.map(s => `skills=${encodeURIComponent(s)}`).join("&")
-        ).then(res => {
+            effectiveSkills.map((s) => `skills=${encodeURIComponent(s)}`).join("&")
+        ).then((res) => {
+            console.log("[COURSE RESPONSE]", res);
             if (!res) return;
             setCourses(res);
         });
     }, [effectiveSkills]);
 
+    // ---------------- BOARD ----------------
     useEffect(() => {
+        console.log("[BOARD EFFECT]", tab, boardSort);
         if (tab !== "community") return;
 
-        apiFetch<JobBoardItem[]>(
-            `/api/jobs/board?sort=${boardSort}`
-        ).then((res) => {
-            if (!res) return;
-            setBoardJobs(res);
-        });
+        apiFetch<JobBoardItem[]>(`/api/jobs/board?sort=${boardSort}`).then(
+            (res) => {
+                console.log("[BOARD RESPONSE]", res);
+                if (!res) return;
+                setBoardJobs(res);
+            }
+        );
     }, [tab, boardSort]);
 
-
-
-
-
-
-
+    // ---------------- EXPLAIN ----------------
     async function openExplain(job: MatchingCard) {
+        console.log("[EXPLAIN OPEN]", job.jobId);
         const data = await apiFetch<MatchingExplain>(
             `/api/matching/${job.jobId}/explain`
         );
+        console.log("[EXPLAIN RESPONSE]", data);
         setSelectedJob(job);
         setExplain(data);
     }
 
     if (!authChecked || !ready) {
+        console.log("[LOADING SCREEN]");
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="w-10 h-10 border-4 border-[#38B2AC] border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
+
+    console.log("[UI RENDER] tab:", tab, "jobs:", jobs.length);
 
     return (
         <>
