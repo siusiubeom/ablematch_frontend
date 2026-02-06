@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Naver Test</title>
+    <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=YOUR_KEY&libraries=services"></script>
+</head>
+<body>
+<script>
+    setTimeout(() => {
+        console.log("window.naver:", window.naver);
+        console.log("maps:", window.naver?.maps);
+        console.log("service:", window.naver?.maps?.Service);
+    }, 1000);
+</script>
+</body>
+</html>
