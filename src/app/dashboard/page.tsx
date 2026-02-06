@@ -410,10 +410,17 @@ export default function Dashboard() {
                                                 {job.company}
                                             </p>
 
+                                            {job.dueDateText && (
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    마감: {job.dueDateText}
+                                                </p>
+                                            )}
+
                                             <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-700 rounded-full">
-                                            {job.workType}
-                                            </span>
+        {job.workType}
+    </span>
                                         </div>
+
 
                                         <div className="flex flex-col gap-2 text-sm text-gray-500">
                                             <div className="flex items-center gap-1">

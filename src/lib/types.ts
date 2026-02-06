@@ -7,6 +7,7 @@ export interface MatchingCard {
     workType: string;
     sourceUrl: string;
     distanceKm?: number;
+    dueDateText?: string; // ADD
 }
 
 export interface MatchingExplain {
@@ -48,4 +49,5 @@ export type JobBoardItem = {
     sourceUrl: string;
     viewCount: number;
     likeCount: number;
+    dueDateText?: string;
 };

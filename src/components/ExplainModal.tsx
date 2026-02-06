@@ -81,20 +81,17 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
 
 
     useEffect(() => {
-        if (!naverReady || !company) return;
+        const query = data.companyAddress || company;
+
+        if (!naverReady || !query) return;
 
         const mapDiv = document.getElementById("naver-map");
         if (!mapDiv) return;
 
-        console.log("MAP INIT");
-
-        if (!window.naver?.maps?.Service) {
-            console.log("SERVICE NOT READY");
-            return;
-        }
+        if (!window.naver?.maps?.Service) return;
 
         window.naver.maps.Service.geocode(
-            { query: company },
+            { query },
             (status: any, response: any) => {
                 if (status !== window.naver.maps.Service.Status.OK) {
                     console.log("GEOCODE FAIL");
@@ -118,11 +115,10 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
                     position: latlng,
                     map,
                 });
-
-                console.log("MAP SUCCESS");
             }
         );
-    }, [company, naverReady]);
+    }, [company, data.companyAddress, naverReady]);
+
 
 
 

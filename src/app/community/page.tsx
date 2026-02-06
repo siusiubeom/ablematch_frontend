@@ -205,6 +205,11 @@ export default function CommunityPage() {
                             >
                                 <p className="text-sm font-semibold">{job.title}</p>
                                 <p className="text-xs text-gray-500">{job.company}</p>
+                                {job.dueDateText && (
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        마감: {job.dueDateText}
+                                    </p>
+                                )}
 
                                 <div className="flex gap-3 mt-1 text-xs text-gray-400">
           <span className="flex items-center gap-1">

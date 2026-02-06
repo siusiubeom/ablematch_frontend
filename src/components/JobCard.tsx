@@ -35,6 +35,12 @@ export default function JobCard({ job, onClick }: Props) {
                     <p className="text-sm text-gray-500">{job.company}</p>
                 </div>
             </div>
+
+            {job.dueDateText && (
+                <p className="text-xs text-gray-400 mt-1">
+                    마감: {job.dueDateText}
+                </p>
+            )}
             <div className="flex flex-wrap gap-2 mb-4">
                 {job.highlights.map((h) => (
                     <span
