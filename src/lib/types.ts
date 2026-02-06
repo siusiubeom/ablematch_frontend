@@ -34,7 +34,6 @@ export type UserProfile = {
     profileImageUrl: string | null;
 };
 
-
 export interface RecommendedCourse {
     skill: string;
     title: string;

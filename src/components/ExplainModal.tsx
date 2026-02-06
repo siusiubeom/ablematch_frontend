@@ -115,6 +115,32 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
 
 
 
+    useEffect(() => {
+        if (!company) return;
+        if (!window.naver) return;
+
+        const geocoder = new window.naver.maps.Service.Geocoder();
+
+        geocoder.geocode({ query: company }, (status: any, response: any) => {
+            if (status !== window.naver.maps.Service.Status.OK) return;
+
+            const result = response.v2.addresses[0];
+            const lat = parseFloat(result.y);
+            const lng = parseFloat(result.x);
+
+            const location = new window.naver.maps.LatLng(lat, lng);
+
+            const map = new window.naver.maps.Map("naver-map", {
+                center: location,
+                zoom: 15,
+            });
+
+            new window.naver.maps.Marker({
+                position: location,
+                map,
+            });
+        });
+    }, [company]);
 
 
 
@@ -126,11 +152,8 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
             <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-6">
                 {company && (
-                    <iframe
-                        className="w-full h-40 rounded-lg mb-4"
-                        src={`https://map.naver.com/v5/search/${encodeURIComponent(company)}`}
-                        loading="lazy"
-                    />
+                    <div id="naver-map" className="w-full h-40 rounded-lg mb-4" />
+
                 )}
                 <div className="flex justify-between items-start">
                     <div>
