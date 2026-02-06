@@ -13,10 +13,10 @@ export default function LandingHero({ setLoading, setStep }: any) {
     const [file, setFile] = useState<File | null>(null);
     const [dragActive, setDragActive] = useState(false);
 
-    const accept = ".pdf,.doc,.docx,.hwp";
+    const accept = ".pdf,.docx,.hwp";
 
     const fileName = useMemo(() => {
-        if (!file) return "PDF / DOC / DOCX / HWP";
+        if (!file) return "PDF / DOCX / HWP";
         return file.name;
     }, [file]);
 
@@ -71,11 +71,12 @@ export default function LandingHero({ setLoading, setStep }: any) {
     return (
         <section className="bg-white text-slate-900 dark:bg-white dark:text-slate-900">
             {/* PART 1 — Bigger: Logo left / Upload right */}
+            {/* PART 1 — Bigger: Logo left / Upload right */}
             <div className="relative overflow-hidden">
                 {/* subtle brand wash (no boxes) */}
                 <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full blur-3xl opacity-20 bg-[#2E75B6]" />
-                    <div className="absolute -bottom-40 -right-40 h-[520px] w-[520px] rounded-full blur-3xl opacity-15 bg-[#ED7D31]" />
+                    <div className="absolute -top-40 -left-40 h-[560px] w-[560px] rounded-full blur-3xl opacity-20 bg-[#2E75B6]" />
+                    <div className="absolute -bottom-40 -right-40 h-[560px] w-[560px] rounded-full blur-3xl opacity-15 bg-[#ED7D31]" />
                 </div>
 
                 <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-28">
@@ -87,7 +88,8 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.7 }}
                             >
-                                <div className="relative w-full max-w-[680px] aspect-[3/1]">
+                                {/* logo: bigger + slightly higher */}
+                                <div className="relative w-full max-w-[760px] aspect-[3/1] -mt-8">
                                     <Image
                                         src="/ablematch_logo-Photoroom.png"
                                         alt="AbleMatch"
@@ -97,14 +99,17 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                     />
                                 </div>
 
-                                <h1 className="mt-10 text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.03]">
-                                    AI로 연결하는
-                                    <span className="block text-[#2E75B6]">커리어 매칭</span>
-                                </h1>
+                                {/* headline + paragraph: moved lower */}
+                                <div className="mt-16">
+                                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.03]">
+                                        AI로 연결하는
+                                        <span className="block text-[#2E75B6]">커리어 매칭</span>
+                                    </h1>
 
-                                <p className="mt-5 text-lg md:text-xl text-slate-600 dark:text-slate-600 max-w-2xl">
-                                    이력서 업로드 한 번으로, 현실적으로 가능한 로드맵과 기업을 제안합니다.
-                                </p>
+                                    <p className="mt-5 text-lg md:text-xl text-slate-600 dark:text-slate-600 max-w-2xl">
+                                        이력서 업로드 한 번으로, 현실적으로 가능한 로드맵과 기업을 제안합니다.
+                                    </p>
+                                </div>
                             </motion.div>
                         </div>
 
@@ -130,6 +135,7 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                     setDragActive(false);
                                 }}
                                 onDrop={onDrop}
+                                className="pt-6"
                             >
                                 <input
                                     ref={inputRef}
@@ -139,37 +145,43 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                     className="hidden"
                                 />
 
-                                <div className="text-sm font-semibold text-slate-500 dark:text-slate-500">
-                                    Upload Resume
-                                </div>
-
-                                {/* minimalist underline row (no card) */}
-                                <div
-                                    className={[
-                                        "mt-4 flex items-center justify-between gap-4 py-4 border-b",
-                                        dragActive ? "border-[#2E75B6]" : "border-slate-200",
-                                        "dark:border-slate-200",
-                                    ].join(" ")}
-                                >
-                                    <div className="min-w-0">
-                                        <div className="text-sm md:text-base text-slate-700 dark:text-slate-700 truncate">
-                      <span className="font-semibold text-slate-900 dark:text-slate-900">
-                        {file ? "Selected" : "Supported"}
-                      </span>
-                                            : {fileName}
+                                {/* Upload title */}
+                                <div className="flex items-end justify-between">
+                                    <div>
+                                        <div className="text-sm font-semibold text-slate-500 dark:text-slate-500">
+                                            Upload Resume
                                         </div>
                                         <div className="mt-1 text-xs md:text-sm text-slate-500 dark:text-slate-500">
-                                            Drag & drop or choose a file
+                                            PDF / DOCX / HWP
                                         </div>
                                     </div>
 
                                     <button
                                         type="button"
                                         onClick={pickFile}
-                                        className="shrink-0 inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-[#2E75B6] hover:opacity-80 transition"
+                                        className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-[#2E75B6] hover:opacity-80 transition"
                                     >
-                                        Choose
+                                        Choose file
                                     </button>
+                                </div>
+
+                                {/* refreshed upload row (still minimal, no box) */}
+                                <div
+                                    className={[
+                                        "mt-6 border-b pb-4",
+                                        dragActive ? "border-[#2E75B6]" : "border-slate-200",
+                                        "dark:border-slate-200",
+                                    ].join(" ")}
+                                >
+                                    <div className="text-sm md:text-base text-slate-700 dark:text-slate-700 truncate">
+              <span className="font-semibold text-slate-900 dark:text-slate-900">
+                {file ? "Selected" : "Drop file here"}
+              </span>
+                                        {file ? ` — ${fileName}` : " or click “Choose file”"}
+                                    </div>
+                                    <div className="mt-2 text-xs md:text-sm text-slate-500 dark:text-slate-500">
+                                        Drag & drop supported
+                                    </div>
                                 </div>
 
                                 <div className="mt-8 flex flex-col gap-4">
@@ -212,6 +224,7 @@ export default function LandingHero({ setLoading, setStep }: any) {
                     <div className="mt-20 h-px w-full bg-slate-200 dark:bg-slate-200" />
                 </div>
             </div>
+
 
             {/* PART 2 — Bigger: Tagline left / Image right */}
             <div className="max-w-7xl mx-auto px-6 py-24">
