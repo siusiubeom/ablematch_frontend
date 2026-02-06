@@ -15,6 +15,13 @@ import {
 } from "lucide-react";
 
 
+type Comment = {
+    id: string;
+    authorAlias: string;
+    content: string;
+    createdAt: string;
+};
+
 type FeedPost = {
     id: string;
     author: string;
@@ -22,6 +29,7 @@ type FeedPost = {
     likeCount: number;
     commentCount: number;
     createdAt: string;
+    comments?: Comment[];
 };
 
 export default function CommunityPage() {
@@ -37,6 +45,36 @@ export default function CommunityPage() {
     const [boardSort, setBoardSort] = useState<
         "latest" | "popular" | "likes" | "company"
     >("latest");
+
+    const [expandedPost, setExpandedPost] = useState<string | null>(null);
+    const [comments, setComments] = useState<Record<string, Comment[]>>({});
+    const [newComment, setNewComment] = useState<Record<string, string>>({});
+    async function loadComments(postId: string) {
+        const res = await apiFetch<Comment[]>(`/api/community/${postId}/comments`);
+        if (!res) return;
+
+        setComments(prev => ({ ...prev, [postId]: res }));
+    }
+    async function createComment(postId: string) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.push("/login");
+            return;
+        }
+
+        const content = newComment[postId];
+        if (!content?.trim()) return;
+
+        await apiFetch(`/api/community/${postId}/comment`, {
+            method: "POST",
+            body: JSON.stringify({ content }),
+        });
+
+        setNewComment(prev => ({ ...prev, [postId]: "" }));
+        loadComments(postId);
+        loadFeed();
+    }
+
 
     useEffect(() => {
         apiFetch<UserProfile>("/api/me/profile")
@@ -161,37 +199,82 @@ focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
                     </div>
 
                     {posts.map((post) => (
-                        <div
-                            key={post.id}
-                            className="bg-white text-gray-900 p-6 rounded-xl border shadow-sm"
-                        >
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
-                                    {post.author[0]}
+                            <div
+                                key={post.id}
+                                className="bg-white text-gray-900 p-6 rounded-xl border shadow-sm"
+                            >
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                                        익
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold">익명</p>
+                                        <p className="text-xs text-gray-500">
+                                            {new Date(post.createdAt).toLocaleDateString()}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-sm font-bold">{post.author}</p>
-                                    <p className="text-xs text-gray-500">
-                                        {new Date(post.createdAt).toLocaleDateString()}
-                                    </p>
+
+                                <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                                    {post.content}
+                                </p>
+
+                                <div className="flex gap-6 border-t pt-3 text-sm text-gray-500">
+                                    <button className="flex items-center gap-1 hover:text-[#1A365D]">
+                                        <Heart size={16} /> {post.likeCount}
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            if (expandedPost === post.id) {
+                                                setExpandedPost(null);
+                                            } else {
+                                                setExpandedPost(post.id);
+                                                loadComments(post.id);
+                                            }
+                                        }}
+                                        className="flex items-center gap-1 hover:text-[#1A365D]"
+                                    >
+                                        <MessageSquare size={16} /> {post.commentCount}
+                                    </button>
                                 </div>
-                            </div>
 
-                            <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                                {post.content}
-                            </p>
+                                {/* COMMENT PANEL */}
+                                {expandedPost === post.id && (
+                                    <div className="mt-4 border-t pt-4 space-y-3">
+                                        {comments[post.id]?.map((c) => (
+                                            <div key={c.id} className="text-sm">
+                                                <span className="font-bold mr-2">{c.authorAlias}</span>
+                                                <span className="text-gray-700">{c.content}</span>
+                                            </div>
+                                        ))}
 
-                            <div className="flex gap-6 border-t pt-3 text-sm text-gray-500">
-                                <button className="flex items-center gap-1 hover:text-[#1A365D]">
-                                    <Heart size={16} /> {post.likeCount}
-                                </button>
-                                <button className="flex items-center gap-1 hover:text-[#1A365D]">
-                                    <MessageSquare size={16} /> {post.commentCount}
-                                </button>
+                                        <div className="flex gap-2 mt-3">
+                                            <input
+                                                value={newComment[post.id] || ""}
+                                                onChange={(e) =>
+                                                    setNewComment((prev) => ({
+                                                        ...prev,
+                                                        [post.id]: e.target.value,
+                                                    }))
+                                                }
+                                                className="flex-1 border rounded px-3 py-2 text-sm"
+                                                placeholder="댓글 작성..."
+                                            />
+                                            <button
+                                                onClick={() => createComment(post.id)}
+                                                className="px-3 py-2 bg-[#38B2AC] text-white rounded text-sm font-bold"
+                                            >
+                                                작성
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                    ))}
-                </main>
+                        ))}
+
+
+                        </main>
 
                 <aside className="lg:col-span-3 space-y-6">
 
