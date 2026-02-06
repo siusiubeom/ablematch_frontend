@@ -148,8 +148,8 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                 {/* Upload title */}
                                 <div className="flex items-end justify-between">
                                     <div>
-                                        <div className="text-sm font-semibold text-slate-500 dark:text-slate-500">
-                                            Upload Resume
+                                        <div className="text-sm font-semibold text-[#2E75B6]">
+                                            이력서 업로드
                                         </div>
                                         <div className="mt-1 text-xs md:text-sm text-slate-500 dark:text-slate-500">
                                             PDF / DOCX / HWP
@@ -159,28 +159,29 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                     <button
                                         type="button"
                                         onClick={pickFile}
-                                        className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-[#2E75B6] hover:opacity-80 transition"
+                                        className="inline-flex items-center justify-center px-4 py-2 text-sm font-bold text-[#ED7D31] hover:opacity-80 transition"
                                     >
-                                        Choose file
+                                        파일 선택
                                     </button>
                                 </div>
 
-                                {/* refreshed upload row (still minimal, no box) */}
+                                {/* underline upload row */}
                                 <div
                                     className={[
-                                        "mt-6 border-b pb-4",
+                                        "mt-6 border-b pb-4 transition-colors",
                                         dragActive ? "border-[#2E75B6]" : "border-slate-200",
                                         "dark:border-slate-200",
                                     ].join(" ")}
                                 >
                                     <div className="text-sm md:text-base text-slate-700 dark:text-slate-700 truncate">
-              <span className="font-semibold text-slate-900 dark:text-slate-900">
-                {file ? "Selected" : "Drop file here"}
-              </span>
-                                        {file ? ` — ${fileName}` : " or click “Choose file”"}
+        <span className="font-semibold text-slate-900 dark:text-slate-900">
+          {file ? "선택됨" : "여기에 파일을 놓으세요"}
+        </span>
+                                        {file ? ` — ${fileName}` : " 또는 ‘파일 선택’ 클릭"}
                                     </div>
+
                                     <div className="mt-2 text-xs md:text-sm text-slate-500 dark:text-slate-500">
-                                        Drag & drop supported
+                                        드래그 앤 드롭 지원
                                     </div>
                                 </div>
 
@@ -197,14 +198,14 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                             "dark:bg-[#2E75B6] dark:hover:bg-[#255f93]",
                                         ].join(" ")}
                                     >
-                                        Start Matching
+                                        AI 매칭 시작
                                     </button>
 
                                     <button
                                         onClick={() => router.push("/community")}
-                                        className="w-full py-4 text-sm md:text-base font-bold text-slate-700 hover:text-slate-900 transition dark:text-slate-700 dark:hover:text-slate-900"
+                                        className="w-full py-4 text-sm md:text-base font-bold text-slate-700 hover:text-[#2E75B6] transition dark:text-slate-700"
                                     >
-                                        Explore Community
+                                        커뮤니티 둘러보기
                                     </button>
 
                                     {file ? (
@@ -213,12 +214,13 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                             className="text-sm font-semibold text-[#ED7D31] hover:opacity-80 transition self-start"
                                             type="button"
                                         >
-                                            Remove file
+                                            파일 제거
                                         </button>
                                     ) : null}
                                 </div>
                             </motion.div>
                         </div>
+
                     </div>
 
                     <div className="mt-20 h-px w-full bg-slate-200 dark:bg-slate-200" />
