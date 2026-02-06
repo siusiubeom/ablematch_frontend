@@ -10,7 +10,6 @@ export default function Home() {
 
     return (
         <>
-            <Header />
 
             {loading && (
                 <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center text-white">
