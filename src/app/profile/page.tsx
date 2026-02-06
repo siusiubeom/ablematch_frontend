@@ -18,6 +18,8 @@ export default function ProfilePage() {
 
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [locLoading, setLocLoading] = useState(false);
+
 
     useEffect(() => {
         apiFetch<Profile>("/api/me/profile").then((res) => {
@@ -41,14 +43,9 @@ export default function ProfilePage() {
         alert("저장되었습니다");
     }
 
-    async function updateImage(url: string) {
-        await apiFetch("/api/me/profile/image", {
-            method: "POST",
-            body: JSON.stringify({ url }),
-        });
-    }
+    async function detectLocation() {
+        setLocLoading(true);
 
-    function detectLocation() {
         navigator.geolocation.getCurrentPosition(async (pos) => {
             const { latitude, longitude } = pos.coords;
 
@@ -64,8 +61,42 @@ export default function ProfilePage() {
                     }
                     : p
             );
+
+            setLocLoading(false);
         });
     }
+
+
+
+    async function handleImageUpload(
+        e: React.ChangeEvent<HTMLInputElement>
+    ) {
+        if (!e.target.files?.length) return;
+
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/me/profile/image`,
+            {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                body: formData,
+            }
+        );
+
+        if (!res.ok) {
+            alert("업로드 실패");
+            return;
+        }
+
+        const updated = await res.json();
+        setProfile(updated); // 핵심
+    }
+
 
 
     if (loading) return <p className="p-10">Loading...</p>;
@@ -100,11 +131,6 @@ export default function ProfilePage() {
                     placeholder="이름"
                 />
 
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                />
 
 
                 <input
@@ -130,7 +156,7 @@ export default function ProfilePage() {
                         onClick={detectLocation}
                         className="px-4 py-2 bg-blue-100 rounded"
                     >
-                        현재 위치 감지
+                        {locLoading ? "위치 찾는 중..." : "현재 위치 감지"}
                     </button>
                 </div>
 
@@ -150,22 +176,4 @@ async function geocodeFromCoords(lat: number, lng: number) {
         `/api/maps/geocode?query=${lat},${lng}`
     );
     return res;
-}
-async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files?.length) return;
-
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-
-    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/me/profile/image`, {
-        method: "POST",
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: formData,
-    });
-
-
-    alert("업로드 완료");
 }

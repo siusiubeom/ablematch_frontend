@@ -1,9 +1,12 @@
 "use client";
 
 import { Bell, Eye, Type, LogOut } from "lucide-react";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { getProfileImage } from "@/lib/profileImage";
+import { apiFetch } from "@/lib/api";
+import {UserProfile} from "@/lib/types";
 
 function getToken() {
     if (typeof window === "undefined") return null;
@@ -19,6 +22,15 @@ export default function Header() {
     const router = useRouter();
     const [showProfile, setShowProfile] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!getToken());
+    const [profileImage, setProfileImage] = useState<string | null>(null);
+    useEffect(() => {
+        if (!getToken()) return;
+
+        apiFetch<UserProfile>("/api/me/profile").then((p) => {
+            setProfileImage(p?.profileImageUrl ?? null);
+        });
+    }, []);
+
 
     return (
         <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200">
@@ -59,8 +71,9 @@ export default function Header() {
                         className="w-9 h-9 rounded-full bg-gray-300 overflow-hidden border-2 border-white"
                     >
                         <img
-                            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                            src={getProfileImage(profileImage)}
                             alt="User"
+                            className="w-full h-full object-cover"
                         />
                     </button>
 

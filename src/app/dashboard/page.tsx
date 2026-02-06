@@ -20,6 +20,8 @@ function getToken() {
     if (typeof window === "undefined") return null;
     return localStorage.getItem("token");
 }
+import { Eye, Heart, Building2, Flame, Clock } from "lucide-react";
+
 
 export default function Dashboard() {
     const [tab, setTab] = useState<"matching" | "community">("matching");
@@ -289,7 +291,7 @@ export default function Dashboard() {
                                     : "text-gray-500"
                             }`}
                         >
-                            <MessageSquare size={16} /> 커뮤니티
+                            <Briefcase size={16} /> 채용 공고
                         </button>
                     </div>
 
@@ -372,34 +374,59 @@ export default function Dashboard() {
 
 
                     {tab === "community" && (
-                        <div className="space-y-6">
+                        <div className="space-y-8">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-bold text-gray-800">
+                                    올라온 채용 공고
+                                </h2>
 
-                            <div className="flex gap-2">
-                                <button onClick={() => setBoardSort("latest")} className="px-3 py-2 border rounded">
-                                    최신순
-                                </button>
-                                <button onClick={() => setBoardSort("popular")} className="px-3 py-2 border rounded">
-                                    조회수
-                                </button>
-                                <button onClick={() => setBoardSort("likes")} className="px-3 py-2 border rounded">
-                                    좋아요
-                                </button>
-                                <button onClick={() => setBoardSort("company")} className="px-3 py-2 border rounded">
-                                    회사명
-                                </button>
+                                <div className="flex bg-gray-100 rounded-lg p-1 text-sm font-semibold">
+                                    <button
+                                        onClick={() => setBoardSort("latest")}
+                                        className={`px-3 py-1 rounded-md flex items-center gap-1 ${
+                                            boardSort === "latest" ? "bg-white shadow" : "text-gray-500"
+                                        }`}
+                                    >
+                                        <Clock size={14} /> 최신
+                                    </button>
+                                    <button
+                                        onClick={() => setBoardSort("popular")}
+                                        className={`px-3 py-1 rounded-md flex items-center gap-1 ${
+                                            boardSort === "popular" ? "bg-white shadow" : "text-gray-500"
+                                        }`}
+                                    >
+                                        <Flame size={14} /> 조회
+                                    </button>
+                                    <button
+                                        onClick={() => setBoardSort("likes")}
+                                        className={`px-3 py-1 rounded-md flex items-center gap-1 ${
+                                            boardSort === "likes" ? "bg-white shadow" : "text-gray-500"
+                                        }`}
+                                    >
+                                        <Heart size={14} /> 좋아요
+                                    </button>
+                                    <button
+                                        onClick={() => setBoardSort("company")}
+                                        className={`px-3 py-1 rounded-md flex items-center gap-1 ${
+                                            boardSort === "company" ? "bg-white shadow" : "text-gray-500"
+                                        }`}
+                                    >
+                                        <Building2 size={14} /> 회사
+                                    </button>
+                                </div>
                             </div>
 
                             {boardJobs.map((job) => (
                                 <div
                                     key={job.id}
-                                    className="rounded-xl border p-6 bg-white hover:shadow cursor-pointer"
+                                    className="rounded-2xl border bg-white p-6 transition hover:shadow-lg hover:-translate-y-1 cursor-pointer"
                                     onClick={async () => {
                                         await apiFetch(`/api/jobs/board/${job.id}/view`, {
                                             method: "POST",
                                         });
 
-                                        setBoardJobs(prev =>
-                                            prev.map(j =>
+                                        setBoardJobs((prev) =>
+                                            prev.map((j) =>
                                                 j.id === job.id
                                                     ? { ...j, viewCount: j.viewCount + 1 }
                                                     : j
@@ -408,20 +435,37 @@ export default function Dashboard() {
 
                                         window.open(job.sourceUrl, "_blank");
                                     }}
-
                                 >
-                                    <h3 className="text-lg font-bold">{job.title}</h3>
-                                    <p className="text-sm text-gray-500">{job.company}</p>
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="text-lg font-bold text-gray-900">
+                                                {job.title}
+                                            </h3>
+                                            <p className="text-sm text-gray-500 mt-1">
+                                                {job.company}
+                                            </p>
 
-                                    <div className="flex gap-3 mt-3 text-xs text-gray-500">
-                                        <span>👁 {job.viewCount}</span>
-                                        <span>❤️ {job.likeCount}</span>
-                                        <span>{job.workType}</span>
+                                            <span className="inline-block mt-3 px-3 py-1 text-xs font-semibold bg-blue-50 text-blue-700 rounded-full">
+                                            {job.workType}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex flex-col gap-2 text-sm text-gray-500">
+                                            <div className="flex items-center gap-1">
+                                                <Eye size={16} />
+                                                {job.viewCount}
+                                            </div>
+                                            <div className="flex items-center gap-1 text-red-500">
+                                                <Heart size={16} />
+                                                {job.likeCount}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     )}
+
 
                 </main>
 
