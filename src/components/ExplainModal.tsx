@@ -1,6 +1,6 @@
 "use client";
 
-import { MatchingExplain } from "@/lib/types";
+import {MatchingExplain, UserProfile} from "@/lib/types";
 import {useEffect, useState} from "react";
 import {apiFetch} from "@/lib/api";
 
@@ -78,8 +78,49 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
 
     const [distanceError, setDistanceError] = useState(false);
 
+    function callDistance(origin: string, dest: string) {
+        console.log("CALL DISTANCE:", origin, dest);
 
+        apiFetch<{
+            distanceMeters: number;
+            durationMinutes: number;
+        }>(
+            `/api/maps/estimate?originAddress=${encodeURIComponent(origin)}&destinationAddress=${encodeURIComponent(dest)}`
+        )
+            .then((res) => {
+                console.log("DISTANCE RESPONSE:", res);
 
+                if (!res || res.distanceMeters === 0) {
+                    setDistanceError(true);
+                    return;
+                }
+
+                setDistance({
+                    km: res.distanceMeters / 1000,
+                    minutes: res.durationMinutes,
+                });
+            })
+            .catch((e) => {
+                console.log("DISTANCE ERROR:", e);
+                setDistanceError(true);
+            });
+    }
+
+    useEffect(() => {
+        setDistance(null);
+        setDistanceError(false);
+
+        apiFetch<UserProfile>("/api/me/profile").then(profile => {
+            console.log("PROFILE:", profile);
+
+            if (!profile?.location || !data.companyAddress) {
+                setDistanceError(true);
+                return;
+            }
+
+            callDistance(profile.location, data.companyAddress);
+        });
+    }, [data.companyAddress]);
 
     useEffect(() => {
         const query = data.companyAddress || company;
@@ -130,64 +171,6 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
         );
 
     }, [company, data.companyAddress, naverReady]);
-
-
-    useEffect(() => {
-        console.log("=== DISTANCE EFFECT START ===");
-
-        setDistanceError(false);
-        setDistance(null);
-
-        const userLocation = localStorage.getItem("location");
-        const jobAddress = data.companyAddress;
-
-        console.log("USER LOCATION:", userLocation);
-        console.log("JOB ADDRESS:", jobAddress);
-
-        if (!userLocation || !jobAddress || jobAddress === "UNKNOWN") {
-            console.log("DISTANCE SKIPPED - INVALID INPUT");
-            setDistanceError(true);
-            return;
-        }
-
-        const url =
-            `/api/maps/estimate?originAddress=${encodeURIComponent(userLocation)}&destinationAddress=${encodeURIComponent(jobAddress)}`;
-
-        console.log("DISTANCE REQUEST URL:", url);
-
-        apiFetch<{
-            distanceMeters: number;
-            durationMinutes: number;
-        }>(url)
-            .then((res) => {
-                console.log("DISTANCE RESPONSE:", res);
-
-                if (!res || res.distanceMeters === 0) {
-                    console.log("DISTANCE FAILED - ZERO OR NULL");
-                    setDistanceError(true);
-                    return;
-                }
-
-                const km = res.distanceMeters / 1000;
-                const minutes = res.durationMinutes;
-
-                console.log("DISTANCE SUCCESS:", km, "km", minutes, "minutes");
-
-                setDistance({
-                    km,
-                    minutes,
-                });
-            })
-            .catch((err) => {
-                console.log("DISTANCE ERROR:", err);
-                setDistanceError(true);
-            })
-            .finally(() => {
-                console.log("=== DISTANCE EFFECT END ===");
-            });
-
-    }, [data.companyAddress]);
-
 
 
 
@@ -257,10 +240,8 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
                     <p>약 {distance.km.toFixed(1)}km · {distance.minutes}분</p>
                 ) : distanceError ? (
                     <p className="text-xs text-gray-400">거리 정보 없음</p>
-                ) : localStorage.getItem("location") ? (
-                    <p className="text-xs text-gray-400">거리 계산 중…</p>
                 ) : (
-                    <p className="text-xs text-gray-400">위치를 설정하면 거리 표시</p>
+                    <p className="text-xs text-gray-400">거리 계산 중…</p>
                 )}
 
 
