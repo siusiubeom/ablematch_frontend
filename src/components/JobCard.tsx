@@ -16,6 +16,7 @@ export default function JobCard({ job, onClick }: Props) {
     );
 
     useEffect(() => {
+        console.log("JOBCARD MOUNT:", job.company);
         if (!job.company) return;
 
         apiFetch<any>(
@@ -29,8 +30,8 @@ export default function JobCard({ job, onClick }: Props) {
                     });
                 }
             })
-            .catch(() => {
-                // 조용히 실패 (지도만 안 뜸)
+            .catch((e) => {
+                console.error("GEOCODE ERROR:", e);
             });
     }, [job.company]);
 
@@ -55,7 +56,6 @@ export default function JobCard({ job, onClick }: Props) {
         </span>
             </div>
 
-            {/* 제목 / 회사 */}
             <div className="flex items-start gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl bg-[#1A365D] text-white flex items-center justify-center">
                     <Briefcase size={18} />
@@ -66,8 +66,7 @@ export default function JobCard({ job, onClick }: Props) {
                     <p className="text-sm text-gray-500">{job.company}</p>
                 </div>
             </div>
-
-            {/* 하이라이트 */}
+=
             <div className="flex flex-wrap gap-2 mb-4">
                 {job.highlights.map((h) => (
                     <span
