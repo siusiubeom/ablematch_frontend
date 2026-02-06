@@ -19,6 +19,8 @@ export interface MatchingExplain {
     };
     missingSkills: string[];
     impossibleReason?: string;
+    company?: string;
+    companyAddress?: string;
 }
 
 

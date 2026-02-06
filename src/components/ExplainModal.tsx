@@ -54,6 +54,33 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
     const seed = hashString(data.jobTitle);
     const rng = mulberry32(seed);
 
+    const [distance, setDistance] = useState<{
+        km: number;
+        minutes: number;
+    } | null>(null);
+
+
+    useEffect(() => {
+        if (!data.company) return;
+
+        const userLocation = localStorage.getItem("location");
+        if (!userLocation) return;
+
+        apiFetch<any>(
+            `/api/maps/estimate?originAddress=${encodeURIComponent(userLocation)}&destinationAddress=${encodeURIComponent(data.company)}`
+        ).then((res) => {
+            if (!res) return;
+
+            setDistance({
+                km: res.distanceMeters / 1000,
+                minutes: res.durationMinutes,
+            });
+        });
+    }, [data.company]);
+
+
+
+
     const roleBase = [
         78 + rng() * 6,
         66 + rng() * 6,
@@ -110,17 +137,16 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
 
 
 
-
-
     return (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
             <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-6">
                 {latlng && (
                     <iframe
-                        className="w-full h-32 rounded-lg mb-4"
-                        src={`https://map.naver.com/v5/search/${latlng.lat},${latlng.lng}`}
+                        className="w-full h-40 rounded-lg mb-4"
+                        src={`https://map.naver.com/v5/search/${encodeURIComponent(data.company)}`}
                         loading="lazy"
                     />
+
                 )}
                 <div className="flex justify-between items-start">
                     <div>
@@ -138,6 +164,15 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
                         ✕
                     </button>
                 </div>
+
+                {distance ? (
+                    <p className="text-sm text-gray-500">
+                        약 {distance.km.toFixed(1)}km · {distance.minutes}분
+                    </p>
+                ) : (
+                    <p className="text-xs text-gray-400">거리 계산 중…</p>
+                )}
+
 
                 {data.impossibleReason && (
                     <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-sm font-bold">
