@@ -26,7 +26,7 @@ import JobCard from "@/components/JobCard";
 export default function Dashboard() {
     const [authChecked, setAuthChecked] = useState(false);
     const [profileChecked, setProfileChecked] = useState(false);
-
+    const [ready, setReady] = useState(false);
     const [tab, setTab] = useState<"matching" | "community">("matching");
 
     const [jobs, setJobs] = useState<MatchingCard[]>([]);
@@ -55,6 +55,7 @@ export default function Dashboard() {
 
         setAuthChecked(true);
     }, [router]);
+
 
     function isProfileValid(p: UserProfile | null) {
         if (!p) return false;
@@ -89,8 +90,8 @@ export default function Dashboard() {
                 }
 
                 setProfile(p);
-            } catch (e) {
-                console.error("profile load error", e);
+                setReady(true);
+            } catch {
                 router.replace("/landing");
             } finally {
                 setProfileLoading(false);
@@ -99,6 +100,7 @@ export default function Dashboard() {
 
         loadProfile();
     }, [router]);
+
 
 
 
@@ -200,7 +202,13 @@ export default function Dashboard() {
         setExplain(data);
     }
 
-    if (!authChecked || profileLoading) return null;
+    if (!authChecked || !ready) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-[#38B2AC] border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <>
