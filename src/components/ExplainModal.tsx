@@ -63,11 +63,23 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
     const [naverReady, setNaverReady] = useState(false);
 
     useEffect(() => {
-        window.initNaver = () => {
-            console.log("NAVER SDK LOADED");
+        if (window.__naverLoaded) {
+            console.log("NAVER ALREADY LOADED");
             setNaverReady(true);
-        };
+            return;
+        }
+
+        const interval = setInterval(() => {
+            if (window.__naverLoaded) {
+                console.log("NAVER LOADED LATE");
+                setNaverReady(true);
+                clearInterval(interval);
+            }
+        }, 50);
+
+        return () => clearInterval(interval);
     }, []);
+
 
 
 
