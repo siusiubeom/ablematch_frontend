@@ -54,6 +54,13 @@ export default function CommunityPage() {
     }
 
     async function createPost() {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            router.push("/login"); // UX redirect
+            return;
+        }
+
         if (!newPost.trim()) return;
 
         await apiFetch("/api/community/post", {
