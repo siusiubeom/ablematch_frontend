@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { getProfileImage } from "@/lib/profileImage";
 import { apiFetch } from "@/lib/api";
 import {UserProfile} from "@/lib/types";
+import { nav } from "framer-motion/client";
 
 function getToken() {
     if (typeof window === "undefined") return null;
@@ -34,9 +35,10 @@ export default function Header() {
 
     return (
         <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200">
-            <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-8">
 
-                <div
+
+            <div
                     className="flex items-center gap-2 cursor-pointer"
                     onClick={() => router.push("/")}
                 >
@@ -48,7 +50,7 @@ export default function Header() {
                     </span>
                 </div>
 
-                <nav className="flex gap-10 font-bold text-gray-700">
+                <nav className="flex gap-12 font-bold text-gray-700">
                     <button onClick={() => router.push("/dashboard")}>
                         대시보드
                     </button>

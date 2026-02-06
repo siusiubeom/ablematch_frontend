@@ -483,13 +483,18 @@ export default function Dashboard() {
                 </main>
 
                 <aside className="lg:col-span-3 space-y-6">
-                    <div className="rounded-2xl border p-6 bg-white h-[400px] flex items-center justify-center text-gray-400">
-                        광고 배너
-                    </div>
-
-                    <div className="rounded-2xl border p-6 bg-white h-[300px] flex items-center justify-center text-gray-400">
-                        스폰서 영역
-                    </div>
+                    <a
+                        href="https://iconnectome.com/brand/index.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block rounded-2xl overflow-hidden border bg-white hover:shadow-lg transition"
+                    >
+                        <img
+                            src="/add_petqtamin.jpg"
+                            alt="PetQtamin 광고"
+                            className="w-full h-auto object-cover"
+                        />
+                    </a>
                 </aside>
 
             </section>
