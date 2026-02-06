@@ -24,6 +24,7 @@ import JobCard from "@/components/JobCard";
 
 
 export default function Dashboard() {
+    const [authChecked, setAuthChecked] = useState(false);
     const [tab, setTab] = useState<"matching" | "community">("matching");
 
     const [jobs, setJobs] = useState<MatchingCard[]>([]);
@@ -43,10 +44,15 @@ export default function Dashboard() {
     const router = useRouter();
 
     useEffect(() => {
-        if (!getToken()) {
-            router.replace("/");
+        const token = getToken();
+
+        if (!token) {
+            router.replace("/login");
+            return;
         }
-    }, []);
+
+        setAuthChecked(true);
+    }, [router]);
 
 
     function fetchMyProfile() {
@@ -179,6 +185,9 @@ export default function Dashboard() {
         setExplain(data);
     }
 
+    if (!authChecked) {
+        return null;
+    }
 
     return (
         <>
