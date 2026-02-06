@@ -69,7 +69,7 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
         if (!userLocation) return;
 
         apiFetch<any>(
-            `/api/maps/estimate?originAddress=${encodeURIComponent(userLocation)}&destinationAddress=${encodeURIComponent(data.company)}`
+            `/api/maps/estimate?originAddress=${encodeURIComponent(userLocation)}&destinationAddress=${encodeURIComponent(company)}`
         ).then((res) => {
             if (!res) return;
             console.log(res.distanceMeters / 1000);
@@ -78,8 +78,8 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
                 minutes: res.durationMinutes,
             });
         });
-        console.log(data.company + "b")
-    }, [data.company]);
+        console.log(company + "b")
+    }, [company]);
 
 
 
@@ -125,10 +125,10 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
     return (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
             <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-6">
-                {data.company && (
+                {company && (
                     <iframe
                         className="w-full h-40 rounded-lg mb-4"
-                        src={`https://map.naver.com/v5/search/${encodeURIComponent(data.company)}`}
+                        src={`https://map.naver.com/v5/search/${encodeURIComponent(company)}`}
                         loading="lazy"
                     />
                 )}
