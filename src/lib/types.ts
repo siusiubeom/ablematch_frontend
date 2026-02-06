@@ -6,6 +6,7 @@ export interface MatchingCard {
     highlights: string[];
     workType: string;
     sourceUrl: string;
+    distanceKm?: number;
 }
 
 export interface MatchingExplain {
@@ -21,17 +22,29 @@ export interface MatchingExplain {
 }
 
 
-
 export type UserProfile = {
     id: string;
     name: string;
     major: string;
     gpa: string;
     preferredRole: string;
+    location: string | null;
+    profileImageUrl: string | null;
 };
+
 
 export interface RecommendedCourse {
     skill: string;
     title: string;
     url: string;
 }
+
+export type JobBoardItem = {
+    id: string;
+    title: string;
+    company: string;
+    workType: string;
+    sourceUrl: string;
+    viewCount: number;
+    likeCount: number;
+};

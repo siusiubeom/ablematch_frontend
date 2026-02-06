@@ -3,22 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getToken } from "@/lib/auth";
-import { Briefcase, MapPin, MessageSquare, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
+import { motion } from "framer-motion";
 
-const STEPS = [
-    "📄 이력서 업로드 중...",
-    "🧠 AI가 역량을 분석 중...",
-    "♿ 근무 환경 적합성 분석 중...",
-    "✨ 최적의 직무 매칭 중...",
-];
-
-export default function LandingHero({
-                                        setLoading,
-                                        setStep,
-                                    }: {
-    setLoading: (v: boolean) => void;
-    setStep: (v: number | ((s: number) => number)) => void;
-}) {
+export default function LandingHero({ setLoading, setStep }: any) {
     const router = useRouter();
     const [file, setFile] = useState<File | null>(null);
 
@@ -33,53 +21,59 @@ export default function LandingHero({
         setLoading(true);
         setStep(0);
 
-        const interval = setInterval(() => {
-            setStep((s) => Math.min(s + 1, STEPS.length - 1));
-        }, 1000);
+        const formData = new FormData();
+        formData.append("file", file);
 
-        try {
+        await fetch("/api/resume/upload", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+        });
 
-            const formData = new FormData();
-            formData.append("file", file);
+        await fetch("/api/me/profile/from-resume", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+        });
 
-            await fetch("https://ablematchbackend-1.onrender.com/api/resume/upload", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}` },
-                body: formData,
-            });
-            await fetch("https://ablematchbackend-1.onrender.com/api/me/profile/from-resume", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${token}` },
-                body: formData,
-            });
-
-            clearInterval(interval);
-            router.replace("/dashboard");
-        } catch {
-            clearInterval(interval);
-            setLoading(false);
-            alert("업로드 실패");
-        }
+        router.replace("/dashboard");
     }
 
     return (
-        <section className="relative overflow-hidden py-24 text-center">
-            <div className="max-w-6xl mx-auto px-6">
-                <span className="inline-block py-1 px-3 rounded-full bg-teal-50 text-teal-700 font-bold mb-6 text-sm border border-teal-200">
-                    Professional Career Platform
-                </span>
+        <section className="relative overflow-hidden bg-white">
+            {/* Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-orange-50" />
 
-                <h1 className="text-5xl md:text-7xl font-extrabold mb-8 leading-tight">
-                    신체적 제약이 아닌,<br />
-                    <span className="text-[#38B2AC]">당신의 전문성</span>으로 평가받는 곳
-                </h1>
+            <div className="relative max-w-7xl mx-auto px-6 py-32 text-center">
 
-                <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-                    AI가 당신의 전공, 기술, 근무 가능 환경을 분석하여<br />
-                    실제로 가능한 커리어만 추천합니다.
-                </p>
+                {/* HERO TITLE */}
+                <motion.h1
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="text-6xl md:text-7xl font-extrabold tracking-tight"
+                >
+                    Career Matching <br />
+                    <span className="text-[#1A365D]">Powered by AI</span>
+                </motion.h1>
 
-                <div className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-xl text-center space-y-6">
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto"
+                >
+                    A professional platform that evaluates expertise, not limitations.
+                    We connect talent with accessible, realistic opportunities.
+                </motion.p>
+
+                {/* GLASS UPLOAD CARD */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="mt-16 max-w-xl mx-auto backdrop-blur-md bg-white/70 border border-white shadow-2xl p-8 rounded-3xl"
+                >
                     <input
                         type="file"
                         accept=".pdf,.doc,.docx,.hwp"
@@ -87,64 +81,47 @@ export default function LandingHero({
                         className="w-full border p-3 rounded-lg"
                     />
 
-                    {file && (
-                        <p className="text-sm text-gray-600">
-                            선택됨: <b>{file.name}</b>
-                        </p>
-                    )}
-
                     <button
                         onClick={submit}
-                        className="group w-full text-white text-xl font-bold py-5 rounded-2xl shadow-xl transition-transform hover:-translate-y-1 bg-[#1A365D] hover:bg-[#152C4E] flex items-center justify-center gap-3"
+                        className="mt-6 w-full py-4 rounded-xl text-white font-bold text-lg bg-[#1A365D] hover:bg-[#142845] transition shadow-lg"
                     >
-                        <Upload /> 이력서 업로드하고 AI 매칭 시작
+                        <Upload className="inline mr-2" />
+                        Start AI Matching
                     </button>
-                </div>
 
-                <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-                    <Feature
-                        icon={<Briefcase />}
-                        title="기술 중심 매칭"
-                        desc="장애 유형보다 보유 기술 스택을 우선 매칭합니다."
-                    />
-                    <Feature
-                        icon={<MapPin />}
-                        title="배리어프리 검증"
-                        desc="실제 근무 환경 접근성 데이터를 분석합니다."
-                    />
-                    <Feature
-                        icon={<MessageSquare />}
-                        title="현직자 커뮤니티"
-                        desc="직무별 멘토링과 생생한 취업 정보를 공유하세요."
-                    />
-                </div>
+                    <button
+                        onClick={() => router.push("/community")}
+                        className="mt-3 w-full py-3 rounded-xl border font-semibold hover:bg-gray-100"
+                    >
+                        Explore Community
+                    </button>
+                </motion.div>
+
+                {/* INTRODUCING US */}
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="mt-32 max-w-4xl mx-auto text-left"
+                >
+                    <h2 className="text-4xl font-bold mb-6 text-[#1A365D]">
+                        Introducing AbleMatch
+                    </h2>
+
+                    <p className="text-gray-600 leading-relaxed text-lg">
+                        AbleMatch is an AI-driven career platform built to remove
+                        structural barriers in employment. We analyze skills,
+                        accessibility conditions, and realistic job environments to
+                        recommend opportunities that truly work.
+                    </p>
+
+                    <p className="mt-4 text-gray-600 leading-relaxed text-lg">
+                        Our mission is to redefine hiring standards — focusing on
+                        capability, not constraints. We empower individuals and companies
+                        to meet where potential actually exists.
+                    </p>
+                </motion.div>
             </div>
         </section>
-    );
-}
-
-function Feature({
-                     icon,
-                     title,
-                     desc,
-                 }: {
-    icon: React.ReactNode;
-    title: string;
-    desc: string;
-}) {
-    return (
-        <div className="p-6 rounded-2xl border bg-white shadow-sm">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 bg-blue-50 text-[#1A365D]">
-                {icon}
-            </div>
-
-            <h3 className="font-extrabold text-lg tracking-tight text-gray-900 mb-2">
-                {title}
-            </h3>
-
-            <p className="text-sm leading-relaxed text-gray-600">
-                {desc}
-            </p>
-        </div>
     );
 }

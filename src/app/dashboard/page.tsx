@@ -12,9 +12,9 @@ import {
 import Header from "@/components/Header";
 import ExplainModal from "@/components/ExplainModal";
 import { apiFetch } from "@/lib/api";
-import {MatchingExplain, MatchingCard, UserProfile, RecommendedCourse} from "@/lib/types";
-import {router} from "next/client";
+import {MatchingExplain, MatchingCard, UserProfile, RecommendedCourse, JobBoardItem} from "@/lib/types";
 import {useRouter} from "next/navigation";
+import {getProfileImage} from "@/lib/profileImage";
 
 function getToken() {
     if (typeof window === "undefined") return null;
@@ -31,6 +31,12 @@ export default function Dashboard() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [profileLoading, setProfileLoading] = useState(true);
     const [courses, setCourses] = useState<RecommendedCourse[]>([]);
+
+    const [boardJobs, setBoardJobs] = useState<JobBoardItem[]>([]);
+    const [boardSort, setBoardSort] = useState<
+        "latest" | "popular" | "likes" | "company"
+    >("latest");
+
 
     const router = useRouter();
 
@@ -130,6 +136,21 @@ export default function Dashboard() {
         });
     }, [effectiveSkills]);
 
+    useEffect(() => {
+        if (tab !== "community") return;
+
+        apiFetch<JobBoardItem[]>(
+            `/api/jobs/board?sort=${boardSort}`
+        ).then((res) => {
+            if (!res) return;
+            setBoardJobs(res);
+        });
+    }, [tab, boardSort]);
+
+
+
+
+
 
 
     async function openExplain(job: MatchingCard) {
@@ -153,7 +174,7 @@ export default function Dashboard() {
                         <div className="relative flex flex-col items-center mt-8">
                             <img
                                 className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 mb-4"
-                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                                src={getProfileImage(profile?.profileImageUrl)}
                                 alt="avatar"
                             />
 
@@ -171,9 +192,13 @@ export default function Dashboard() {
                                         {profile.preferredRole}
                                     </p>
 
-                                    <span className="mt-2 px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
-                                        Open to Work
-                                    </span>
+                                    <button
+                                        onClick={() => router.push("/profile")}
+                                        className="mt-3 px-4 py-2 bg-[#1A365D] text-white text-sm font-bold rounded-lg hover:bg-[#2C5282]"
+                                    >
+                                        내 프로필 보기
+                                    </button>
+
 
                                     <div className="mt-6 w-full pt-6 border-t text-sm space-y-2">
                                         <div className="flex justify-between">
@@ -203,6 +228,45 @@ export default function Dashboard() {
                             </button>
                         </div>
                     </div>
+
+                    <div className="rounded-2xl border p-6 text-center bg-white">
+                        <h3 className="font-bold mb-4 flex items-center justify-center gap-2">
+                            <Star className="text-yellow-400" /> 내 역량 분석
+                        </h3>
+                        <div className="w-32 h-32 mx-auto rounded-full border-4 border-[#38B2AC] flex items-center justify-center">
+                            <span className="text-xl font-bold">Top 15%</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-2">
+                            시장 평균 대비
+                        </p>
+                    </div>
+
+                    <div className="rounded-2xl shadow-sm border p-6 bg-[#1A365D] text-white">
+                        <h3 className="font-bold mb-2">Upskilling Plan</h3>
+                        <p className="text-xs opacity-80 mb-4">
+                            매칭률을 높일 수 있는 추천 강의입니다.
+                        </p>
+
+                        {courses.length === 0 ? (
+                            <p className="text-xs opacity-70">추천 강의가 없습니다.</p>
+                        ) : (
+                            <ul className="space-y-2">
+                                {courses.slice(0, 5).map((course) => (
+                                    <li key={course.url}>
+                                        <a
+                                            href={course.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block px-3 py-2 rounded-lg bg-[#38B2AC] text-center font-bold hover:bg-[#319795]"
+                                        >
+                                            {course.title}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+
                 </aside>
 
                 <main className="lg:col-span-6 space-y-6">
@@ -308,96 +372,69 @@ export default function Dashboard() {
 
 
                     {tab === "community" && (
-                        <>
-                            <div className="p-4 rounded-xl border bg-white">
-                                <textarea
-                                    className="w-full p-3 rounded-lg border bg-gray-50"
-                                    rows={3}
-                                    placeholder="동료들에게 커리어 고민을 나눠보세요..."
-                                />
-                                <div className="flex justify-end mt-2">
-                                    <button className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]">
-                                        작성하기
-                                    </button>
-                                </div>
+                        <div className="space-y-6">
+
+                            <div className="flex gap-2">
+                                <button onClick={() => setBoardSort("latest")} className="px-3 py-2 border rounded">
+                                    최신순
+                                </button>
+                                <button onClick={() => setBoardSort("popular")} className="px-3 py-2 border rounded">
+                                    조회수
+                                </button>
+                                <button onClick={() => setBoardSort("likes")} className="px-3 py-2 border rounded">
+                                    좋아요
+                                </button>
+                                <button onClick={() => setBoardSort("company")} className="px-3 py-2 border rounded">
+                                    회사명
+                                </button>
                             </div>
 
-                            <div className="p-5 rounded-xl border bg-white">
-                                <div className="flex justify-between mb-2">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
-                                            Dev
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-sm">
-                                                현직 개발자 멘토
-                                            </p>
-                                            <p className="text-xs text-gray-400">
-                                                1시간 전
-                                            </p>
-                                        </div>
+                            {boardJobs.map((job) => (
+                                <div
+                                    key={job.id}
+                                    className="rounded-xl border p-6 bg-white hover:shadow cursor-pointer"
+                                    onClick={async () => {
+                                        await apiFetch(`/api/jobs/board/${job.id}/view`, {
+                                            method: "POST",
+                                        });
+
+                                        setBoardJobs(prev =>
+                                            prev.map(j =>
+                                                j.id === job.id
+                                                    ? { ...j, viewCount: j.viewCount + 1 }
+                                                    : j
+                                            )
+                                        );
+
+                                        window.open(job.sourceUrl, "_blank");
+                                    }}
+
+                                >
+                                    <h3 className="text-lg font-bold">{job.title}</h3>
+                                    <p className="text-sm text-gray-500">{job.company}</p>
+
+                                    <div className="flex gap-3 mt-3 text-xs text-gray-500">
+                                        <span>👁 {job.viewCount}</span>
+                                        <span>❤️ {job.likeCount}</span>
+                                        <span>{job.workType}</span>
                                     </div>
-                                    <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                                        취업후기
-                                    </span>
                                 </div>
-
-                                <p className="text-sm mb-4">
-                                    휠체어 유저로서 재택/출근 하이브리드 근무 팁 공유합니다…
-                                </p>
-
-                                <div className="flex gap-4 text-xs font-bold text-gray-500">
-                                    <button className="flex items-center gap-1 text-red-500">
-                                        <Heart size={12} /> 45
-                                    </button>
-                                    <button className="flex items-center gap-1">
-                                        <MessageSquare size={12} /> 12
-                                    </button>
-                                </div>
-                            </div>
-                        </>
+                            ))}
+                        </div>
                     )}
+
                 </main>
 
                 <aside className="lg:col-span-3 space-y-6">
-                    <div className="rounded-2xl border p-6 text-center bg-white">
-                        <h3 className="font-bold mb-4 flex items-center justify-center gap-2">
-                            <Star className="text-yellow-400" /> 내 역량 분석
-                        </h3>
-                        <div className="w-32 h-32 mx-auto rounded-full border-4 border-[#38B2AC] flex items-center justify-center">
-                            <span className="text-xl font-bold">Top 15%</span>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-2">
-                            시장 평균 대비
-                        </p>
-                    </div>
-                    <div className="rounded-2xl shadow-sm border p-6 bg-[#1A365D] text-white">
-                        <h3 className="font-bold mb-2">Upskilling Plan</h3>
-                        <p className="text-xs opacity-80 mb-4">
-                            매칭률을 높일 수 있는 추천 강의입니다.
-                        </p>
-
-                        {courses.length === 0 ? (
-                            <p className="text-xs opacity-70">추천 강의가 없습니다.</p>
-                        ) : (
-                            <ul className="space-y-2">
-                                {courses.slice(0, 5).map((course) => (
-                                    <li key={course.url}>
-                                        <a
-                                            href={course.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block px-3 py-2 rounded-lg bg-[#38B2AC] text-center font-bold hover:bg-[#319795]"
-                                        >
-                                            {course.title}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                    <div className="rounded-2xl border p-6 bg-white h-[400px] flex items-center justify-center text-gray-400">
+                        광고 배너
                     </div>
 
+                    <div className="rounded-2xl border p-6 bg-white h-[300px] flex items-center justify-center text-gray-400">
+                        스폰서 영역
+                    </div>
                 </aside>
+
             </section>
 
             {explain && selectedJob && (

@@ -2,7 +2,7 @@
 
 import { Bell, Eye, Type, LogOut } from "lucide-react";
 import {useState} from "react";
-
+import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 function getToken() {
@@ -36,10 +36,26 @@ export default function Header() {
                     </span>
                 </div>
 
+                <nav className="flex gap-6 font-bold text-gray-700">
+                    <button onClick={() => router.push("/dashboard")}>
+                        대시보드
+                    </button>
+                    <button onClick={() => router.push("/community")}>
+                        커뮤니티
+                    </button>
+                </nav>
+
+
                 <div className="flex items-center gap-3 relative">
 
                     <button
-                        onClick={() => setShowProfile(!showProfile)}
+                        onClick={() => {
+                            if (isLoggedIn) {
+                                router.push("/profile");
+                            } else {
+                                setShowProfile(!showProfile);
+                            }
+                        }}
                         className="w-9 h-9 rounded-full bg-gray-300 overflow-hidden border-2 border-white"
                     >
                         <img
