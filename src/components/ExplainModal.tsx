@@ -60,71 +60,65 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
         minutes: number;
     } | null>(null);
 
+    const [naverReady, setNaverReady] = useState(false);
 
     useEffect(() => {
-        console.log("MAP EFFECT START", company);
+        const interval = setInterval(() => {
+            if (window.naver && window.naver.maps) {
+                console.log("NAVER READY");
+                setNaverReady(true);
+                clearInterval(interval);
+            }
+        }, 100);
 
-        if (!company) {
-            console.log("NO COMPANY");
+        return () => clearInterval(interval);
+    }, []);
+
+
+    useEffect(() => {
+        if (!naverReady || !company) return;
+
+        const mapDiv = document.getElementById("naver-map");
+        if (!mapDiv) {
+            console.log("MAP DIV NOT READY");
             return;
         }
 
-        if (!window.naver) {
-            console.log("NAVER NOT LOADED");
-            return;
-        }
+        console.log("MAP INIT");
 
-        if (!document.getElementById("naver-map")) {
-            console.log("MAP DIV NOT FOUND");
-            return;
-        }
+        const geocoder = new window.naver.maps.Service.Geocoder();
 
-        console.log("NAVER OK", window.naver);
+        geocoder.geocode({ query: company }, (status: any, response: any) => {
+            if (status !== window.naver.maps.Service.Status.OK) {
+                console.log("GEOCODE FAIL", status);
+                return;
+            }
 
-        try {
-            const geocoder = new window.naver.maps.Service.Geocoder();
-            console.log("GEOCODER CREATED");
+            if (!response.v2.addresses.length) {
+                console.log("NO ADDRESS");
+                return;
+            }
 
-            geocoder.geocode({ query: company }, (status: any, response: any) => {
-                console.log("GEOCODE STATUS:", status);
-                console.log("GEOCODE RESPONSE:", response);
+            const result = response.v2.addresses[0];
+            const lat = parseFloat(result.y);
+            const lng = parseFloat(result.x);
 
-                if (status !== window.naver.maps.Service.Status.OK) {
-                    console.log("GEOCODE FAILED");
-                    return;
-                }
+            const location = new window.naver.maps.LatLng(lat, lng);
 
-                if (!response.v2.addresses.length) {
-                    console.log("NO ADDRESS RESULTS");
-                    return;
-                }
-
-                const result = response.v2.addresses[0];
-                const lat = parseFloat(result.y);
-                const lng = parseFloat(result.x);
-
-                console.log("LAT LNG:", lat, lng);
-
-                const location = new window.naver.maps.LatLng(lat, lng);
-
-                const map = new window.naver.maps.Map("naver-map", {
-                    center: location,
-                    zoom: 15,
-                });
-
-                console.log("MAP CREATED");
-
-                const marker = new window.naver.maps.Marker({
-                    position: location,
-                    map,
-                });
-
-                console.log("MARKER CREATED", marker);
+            const map = new window.naver.maps.Map(mapDiv, {
+                center: location,
+                zoom: 15,
             });
-        } catch (e) {
-            console.error("MAP ERROR", e);
-        }
-    }, [company]);
+
+            new window.naver.maps.Marker({
+                position: location,
+                map,
+            });
+
+            console.log("MAP SUCCESS");
+        });
+    }, [company, naverReady]);
+
 
 
 
@@ -160,33 +154,6 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
     };
 
 
-
-    useEffect(() => {
-        if (!company) return;
-        if (!window.naver) return;
-
-        const geocoder = new window.naver.maps.Service.Geocoder();
-
-        geocoder.geocode({ query: company }, (status: any, response: any) => {
-            if (status !== window.naver.maps.Service.Status.OK) return;
-
-            const result = response.v2.addresses[0];
-            const lat = parseFloat(result.y);
-            const lng = parseFloat(result.x);
-
-            const location = new window.naver.maps.LatLng(lat, lng);
-
-            const map = new window.naver.maps.Map("naver-map", {
-                center: location,
-                zoom: 15,
-            });
-
-            new window.naver.maps.Marker({
-                position: location,
-                map,
-            });
-        });
-    }, [company]);
 
 
 
