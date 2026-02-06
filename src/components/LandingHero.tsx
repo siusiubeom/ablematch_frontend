@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { getToken } from "@/lib/auth";
 import { h1 } from "framer-motion/client";
+import { BASE_URL } from "@/lib/api";
 
 export default function LandingHero({ setLoading, setStep }: any) {
     const router = useRouter();
@@ -54,13 +55,13 @@ export default function LandingHero({ setLoading, setStep }: any) {
         const formData = new FormData();
         formData.append("file", file);
 
-        await fetch("/api/resume/upload", {
+        await fetch(`${BASE_URL}/api/resume/upload`, {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
             body: formData,
         });
 
-        await fetch("/api/me/profile/from-resume", {
+        await fetch(`${BASE_URL}/api/me/profile/from-resume`, {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
             body: formData,
