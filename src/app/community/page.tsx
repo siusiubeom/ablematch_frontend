@@ -57,6 +57,7 @@ export default function CommunityPage() {
 
         setComments(prev => ({ ...prev, [postId]: res }));
     }
+
     async function createComment(postId: string) {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -73,9 +74,10 @@ export default function CommunityPage() {
         });
 
         setNewComment(prev => ({ ...prev, [postId]: "" }));
-        loadComments(postId);
-        loadFeed();
+
+        await loadComments(postId);
     }
+
 
 
     useEffect(() => {
@@ -205,36 +207,38 @@ focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
                                 key={post.id}
                                 className="bg-white text-gray-900 p-6 rounded-xl border shadow-sm"
                             >
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
-                                        익
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-bold">익명</p>
-                                        <p className="text-xs text-gray-500">
-                                            {new Date(post.createdAt).toLocaleDateString()}
-                                        </p>
-                                        {post.isOwner && (
-                                            <button
-                                                onClick={async () => {
-                                                    const token = localStorage.getItem("token");
-                                                    if (!token) {
-                                                        router.push("/login");
-                                                        return;
-                                                    }
+                                <div className="flex items-start justify-between mb-3">
 
-                                                    await apiFetch(`/api/community/post/${post.id}`, {
-                                                        method: "DELETE",
-                                                    });
-                                                    loadFeed();
-                                                }}
-                                                className="text-xs text-red-500 hover:underline ml-2"
-                                            >
-                                                삭제
-                                            </button>
-                                        )}
-
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                                            익
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold">익명</p>
+                                            <p className="text-xs text-gray-500">
+                                                {new Date(post.createdAt).toLocaleDateString()}
+                                            </p>
+                                        </div>
                                     </div>
+
+                                    {post.isOwner && (
+                                        <button
+                                            onClick={async () => {
+                                                const token = localStorage.getItem("token");
+                                                if (!token) {
+                                                    router.push("/login");
+                                                    return;
+                                                }
+                                                await apiFetch(`/api/community/post/${post.id}`, {
+                                                    method: "DELETE",
+                                                });
+                                                loadFeed();
+                                            }}
+                                            className="text-xs text-red-500 hover:underline"
+                                        >
+                                            삭제
+                                        </button>
+                                    )}
                                 </div>
 
                                 <p className="text-gray-700 text-sm leading-relaxed mb-4">
