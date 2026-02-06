@@ -13,23 +13,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+
+
+
+
 export const metadata: Metadata = {
-  title: "AbleMatch",
-  description: "AbleMatch",
+    title: "AbleMatch",
+    description: "AbleMatch",
 };
 
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+                                       children,
+                                   }: {
+    children: React.ReactNode;
+}) {
     return (
         <html lang="ko" className="light">
         <body className="bg-gray-50 text-gray-900">
         {children}
+
+        <Script
+            src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=qq057qny2t&submodules=geocoder`}
+            strategy="afterInteractive"
+        />
         </body>
         </html>
     );
 }
 
-<Script
-    src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=qq057qny2t&submodules=geocoder`}
-    strategy="afterInteractive"
-/>
