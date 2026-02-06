@@ -9,6 +9,7 @@ import {getProfileImage} from "@/lib/profileImage";
 type Profile = {
     name: string;
     preferredRole: string;
+    gpa: string;
     location: string | null;
     profileImageUrl: string | null;
 };
@@ -37,6 +38,7 @@ export default function ProfilePage() {
                 name: profile.name,
                 preferredRole: profile.preferredRole,
                 location: profile.location,
+                gpa: profile.gpa,
             }),
         });
 
@@ -130,6 +132,17 @@ export default function ProfilePage() {
                     className="w-full border p-3 rounded"
                     placeholder="이름"
                 />
+
+                <input
+                    pattern="[0-9.]+\/[0-9.]+"
+                    value={profile.gpa}
+                    onChange={(e) =>
+                        setProfile({ ...profile, gpa: e.target.value })
+                    }
+                    className="w-full border p-3 rounded"
+                    placeholder="학점 (예: 4.12/4.5)"
+                />
+
 
 
 
