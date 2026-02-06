@@ -15,7 +15,9 @@ export async function apiFetch<T>(
             ...options.headers,
         },
     });
-
+    if (res.status === 404) {
+        return null;
+    }
     if (!res.ok) {
         const text = await res.text();
         const error: any = new Error(text || "API error");

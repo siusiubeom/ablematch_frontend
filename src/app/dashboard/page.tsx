@@ -80,16 +80,21 @@ export default function Dashboard() {
 
     useEffect(() => {
         const loadProfile = async () => {
-            const p = await fetchMyProfile();
+            try {
+                const p = await fetchMyProfile();
 
-            if (!isProfileValid(p)) {
+                if (!isProfileValid(p)) {
+                    router.replace("/landing");
+                    return;
+                }
+
+                setProfile(p);
+            } catch (e) {
+                console.error("profile load error", e);
                 router.replace("/landing");
-                return;
+            } finally {
+                setProfileLoading(false);
             }
-
-            setProfile(p);
-            setProfileLoading(false);
-            setProfileChecked(true); // <-- ONLY HERE
         };
 
         loadProfile();
@@ -97,15 +102,10 @@ export default function Dashboard() {
 
 
 
-
-
-
-
-
-
     useEffect(() => {
+        if (!profile) return;
+
         const loadMatching = async () => {
-            if (!profile) return;
             const res = await apiFetch<{
                 status: string;
                 data: MatchingCard[];
@@ -119,7 +119,8 @@ export default function Dashboard() {
         };
 
         loadMatching();
-    }, []);
+    }, [profile]);
+
 
     useEffect(() => {
         console.log("MATCHING JOB SAMPLE:", jobs[0]);
