@@ -63,15 +63,9 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
     const [naverReady, setNaverReady] = useState(false);
 
     useEffect(() => {
-        if (window.__naverLoaded) {
-            console.log("NAVER ALREADY LOADED");
-            setNaverReady(true);
-            return;
-        }
-
         const interval = setInterval(() => {
-            if (window.__naverLoaded) {
-                console.log("NAVER LOADED LATE");
+            if (window.naver?.maps?.Service) {
+                console.log("NAVER SERVICE READY");
                 setNaverReady(true);
                 clearInterval(interval);
             }
@@ -85,6 +79,7 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
 
 
 
+
     useEffect(() => {
         if (!naverReady || !company) return;
 
@@ -92,6 +87,11 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
         if (!mapDiv) return;
 
         console.log("MAP INIT");
+
+        if (!window.naver?.maps?.Service) {
+            console.log("SERVICE NOT READY");
+            return;
+        }
 
         window.naver.maps.Service.geocode(
             { query: company },
