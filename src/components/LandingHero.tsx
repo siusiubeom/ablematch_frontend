@@ -71,9 +71,7 @@ export default function LandingHero({ setLoading, setStep }: any) {
 
     return (
         <section className="bg-white text-slate-900 dark:bg-white dark:text-slate-900">
-            {/* PART 1 — Bigger: Logo left / Upload right */}
             <div className="relative overflow-hidden">
-                {/* subtle brand wash (no boxes) */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute -top-40 -left-40 h-[560px] w-[560px] rounded-full blur-3xl opacity-20 bg-[#2E75B6]" />
                     <div className="absolute -bottom-40 -right-40 h-[560px] w-[560px] rounded-full blur-3xl opacity-15 bg-[#ED7D31]" />
@@ -81,7 +79,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
 
                 <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-28">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[72vh]">
-                        {/* Left */}
                         <div className="lg:col-span-7">
                             <motion.div
                                 initial={{ opacity: 0, y: 24 }}
@@ -89,7 +86,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                 transition={{ duration: 1.15, ease: "easeOut" }}
                                 className="-ml-12"   // more left
                             >
-                                {/* LOGO — left + big */}
                                 <div className="relative w-full max-w-[960px] aspect-[3/1] mt-10">
                                     <Image
                                         src="/ablematch_logo-Photoroom.png"
@@ -99,8 +95,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                         className="object-contain scale-[1.22]"
                                     />
                                 </div>
-
-                                {/* TEXT — slightly higher than before */}
                                 <div className="mt-28">
                                     <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.03]">
                                         AI로 연결하는
@@ -115,10 +109,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
                         </div>
 
 
-
-
-
-                        {/* Right */}
                         <div className="lg:col-span-5">
                             <motion.div
                                 initial={{ opacity: 0, y: 14 }}
@@ -150,7 +140,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                     className="hidden"
                                 />
 
-                                {/* Upload title */}
                                 <div className="flex items-end justify-between">
                                     <div>
                                         <div className="text-sm font-semibold text-[#2E75B6]">
@@ -170,7 +159,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                     </button>
                                 </div>
 
-                                {/* underline upload row */}
                                 <div
                                     className={[
                                         "mt-6 border-b pb-4 transition-colors",
@@ -232,8 +220,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
                 </div>
             </div>
 
-
-            {/* PART 2 — Bigger: Tagline left / Image right */}
             <div className="max-w-7xl mx-auto px-6 py-24">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                     <motion.div
@@ -280,7 +266,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
                 <div className="mt-24 h-px w-full bg-slate-200 dark:bg-slate-200" />
             </div>
 
-            {/* PART 3 — Introducing (a bit longer, still minimal) */}
             <div className="max-w-7xl mx-auto px-6 pt-24 pb-28">
                 <motion.div
                     initial={{ opacity: 0, y: 14 }}
@@ -307,7 +292,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
                             전공과 역량이 제대로 반영되는 연결을 목표로 합니다.
                         </p>
 
-                        {/* Minimal bullet list (no cards) */}
                         <ul className="mt-10 space-y-4 text-base md:text-lg text-slate-700 dark:text-slate-700">
                             <li className="flex gap-4">
                                 <span className="mt-3 h-2 w-2 rounded-full bg-[#2E75B6]" />
