@@ -33,7 +33,7 @@ export default function RootLayout({
         {children}
 
         <Script
-            src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=qq057qny2t&submodules=geocoder`}
+            src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=qq057qny2t`}
             strategy="afterInteractive"
         />
         </body>
