@@ -140,13 +140,12 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
     return (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
             <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-6">
-                {latlng && (
+                {latlng && data.company && (
                     <iframe
                         className="w-full h-40 rounded-lg mb-4"
                         src={`https://map.naver.com/v5/search/${encodeURIComponent(data.company)}`}
                         loading="lazy"
                     />
-
                 )}
                 <div className="flex justify-between items-start">
                     <div>
