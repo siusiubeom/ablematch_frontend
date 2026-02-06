@@ -7,12 +7,13 @@ import {apiFetch} from "@/lib/api";
 interface Props {
     data: MatchingExplain;
     sourceUrl: string;
+    company: string;
     onClose: () => void;
 }
 
 
 
-export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
+export default function ExplainModal({ data, company, onClose, sourceUrl }: Props) {
 
 
     function mulberry32(seed: number) {
@@ -61,8 +62,8 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
 
 
     useEffect(() => {
-        console.log(data.company + "a")
-        if (!data.company) return;
+        console.log(company + "a")
+        if (!company) return;
 
         const userLocation = localStorage.getItem("location");
         if (!userLocation) return;

@@ -450,6 +450,7 @@ export default function Dashboard() {
                 <ExplainModal
                     data={explain}
                     sourceUrl={selectedJob.sourceUrl}
+                    company={selectedJob.company}
                     onClose={() => {
                         setExplain(null);
                         setSelectedJob(null);
