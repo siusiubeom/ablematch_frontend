@@ -110,27 +110,9 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
         workType: Math.round(Math.min(85, Math.max(45, roleBase[2]))),
     };
 
-    const [latlng, setLatlng] = useState<{ lat: number; lng: number } | null>(null);
 
 
-    useEffect(() => {
-        if (!data.jobTitle) return;
 
-        apiFetch<any>(
-            `/api/maps/geocode?query=${encodeURIComponent(data.jobTitle)}`
-        )
-            .then((res) => {
-                if (res?.lat != null && res?.lng != null) {
-                    setLatlng({
-                        lat: Number(res.lat),
-                        lng: Number(res.lng),
-                    });
-                }
-            })
-            .catch((e) => {
-                console.error("GEOCODE ERROR:", e);
-            });
-    }, [data.jobTitle]);
 
 
 
@@ -140,7 +122,7 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
     return (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
             <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-6">
-                {latlng && data.company && (
+                {data.company && (
                     <iframe
                         className="w-full h-40 rounded-lg mb-4"
                         src={`https://map.naver.com/v5/search/${encodeURIComponent(data.company)}`}
@@ -165,11 +147,11 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
                 </div>
 
                 {distance ? (
-                    <p className="text-sm text-gray-500">
-                        약 {distance.km.toFixed(1)}km · {distance.minutes}분
-                    </p>
-                ) : (
+                    <p>약 {distance.km.toFixed(1)}km · {distance.minutes}분</p>
+                ) : localStorage.getItem("location") ? (
                     <p className="text-xs text-gray-400">거리 계산 중…</p>
+                ) : (
+                    <p className="text-xs text-gray-400">위치를 설정하면 거리 표시</p>
                 )}
 
 
