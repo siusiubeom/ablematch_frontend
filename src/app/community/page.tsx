@@ -80,7 +80,7 @@ export default function CommunityPage() {
             <section className="w-full max-w-[1600px] mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-gray-50 min-h-screen">
 
             <aside className="lg:col-span-3 space-y-6">
-                    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div className="bg-white text-gray-900 rounded-xl shadow-sm border overflow-hidden">
                         <div className="h-20 bg-[#1A365D]" />
 
                         <div className="px-6 pb-6 relative text-center">
@@ -131,12 +131,15 @@ export default function CommunityPage() {
 
                 <main className="lg:col-span-6 space-y-6">
 
-                    {/* POST BOX */}
-                    <div className="bg-white rounded-xl border shadow-sm p-5">
+                    <div className="bg-white text-gray-900 rounded-xl border shadow-sm p-5">
     <textarea
         value={newPost}
         onChange={(e) => setNewPost(e.target.value)}
-        className="w-full p-3 rounded-lg border bg-gray-50 text-sm"
+        className="
+w-full p-3 rounded-lg border text-sm
+bg-white text-gray-900 placeholder-gray-400 border-gray-300
+focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
+"
         rows={3}
         placeholder="커리어 고민이나 정보를 공유해보세요..."
     />
@@ -150,11 +153,10 @@ export default function CommunityPage() {
                         </div>
                     </div>
 
-                    {/* FEED POSTS */}
                     {posts.map((post) => (
                         <div
                             key={post.id}
-                            className="bg-white p-6 rounded-xl border shadow-sm"
+                            className="bg-white text-gray-900 p-6 rounded-xl border shadow-sm"
                         >
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
@@ -186,8 +188,9 @@ export default function CommunityPage() {
 
                 <aside className="lg:col-span-3 space-y-6">
 
-                    <div className="bg-white rounded-xl border shadow-sm p-5">
-                        <h3 className="font-bold text-gray-900 flex items-center gap-2 mb-4">
+                    <div className="bg-white text-gray-900 rounded-xl border shadow-sm p-5">
+
+                    <h3 className="font-bold text-gray-900 flex items-center gap-2 mb-4">
                             <Briefcase size={18} />
                             최신 채용 공고
                         </h3>
