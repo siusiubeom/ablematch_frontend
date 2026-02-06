@@ -30,12 +30,21 @@ export default function RootLayout({
     return (
         <html lang="ko" className="light">
         <body className="bg-gray-50 text-gray-900">
-        {children}
+        <Script id="naver-init" strategy="beforeInteractive">
+            {`
+        window.__naverLoaded = false;
+        window.initNaver = function () {
+          window.__naverLoaded = true;
+          console.log("NAVER SDK LOADED");
+        };
+      `}
+        </Script>
 
         <Script
-            src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=qq057qny2t`}
+            src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=qq057qny2t&libraries=services&callback=initNaver`}
             strategy="afterInteractive"
         />
+        {children}
         </body>
         </html>
     );

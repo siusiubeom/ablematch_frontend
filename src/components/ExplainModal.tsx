@@ -63,16 +63,14 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
     const [naverReady, setNaverReady] = useState(false);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            if (window.naver && window.naver.maps) {
-                console.log("NAVER READY");
-                setNaverReady(true);
-                clearInterval(interval);
-            }
-        }, 100);
-
-        return () => clearInterval(interval);
+        window.initNaver = () => {
+            console.log("NAVER SDK LOADED");
+            setNaverReady(true);
+        };
     }, []);
+
+
+
 
 
     useEffect(() => {
