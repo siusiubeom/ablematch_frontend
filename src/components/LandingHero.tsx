@@ -88,19 +88,19 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.7 }}
                             >
-                                {/* LOGO — much bigger + higher */}
-                                <div className="relative w-full max-w-[880px] aspect-[3/1] -mt-16">
+                                {/* LOGO — 더 크게 + 살짝 아래 */}
+                                <div className="relative w-full max-w-[920px] aspect-[3/1] -mt-4">
                                     <Image
                                         src="/ablematch_logo-Photoroom.png"
                                         alt="AbleMatch"
                                         fill
                                         priority
-                                        className="object-contain scale-110"
+                                        className="object-contain scale-[1.18]"
                                     />
                                 </div>
 
-                                {/* TEXT — pushed lower */}
-                                <div className="mt-24">
+                                {/* TEXT — 많이 아래로 */}
+                                <div className="mt-32">
                                     <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.03]">
                                         AI로 연결하는
                                         <span className="block text-[#2E75B6]">커리어 매칭</span>
@@ -112,6 +112,7 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                 </div>
                             </motion.div>
                         </div>
+
 
 
                         {/* Right */}
