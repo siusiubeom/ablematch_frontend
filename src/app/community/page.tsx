@@ -77,9 +77,9 @@ export default function CommunityPage() {
         <>
             <Header />
 
-            <section className="w-full max-w-[1600px] mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-gray-50">
+            <section className="w-full max-w-[1600px] mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-gray-50 min-h-screen">
 
-                <aside className="lg:col-span-3 space-y-6">
+            <aside className="lg:col-span-3 space-y-6">
                     <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
                         <div className="h-20 bg-[#1A365D]" />
 

@@ -73,11 +73,10 @@ export default function LoginPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="
-w-full rounded-lg px-4 py-3 border
-bg-white text-gray-900 placeholder-gray-400
-dark:bg-slate-800 dark:text-gray-100 dark:placeholder-gray-400 dark:border-slate-600
-focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
-"
+  w-full rounded-lg px-4 py-3 border
+  bg-white text-gray-900 placeholder-gray-400 border-gray-300
+  focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
+  "
                             placeholder="example@email.com"
                         />
                     </div>
@@ -91,11 +90,10 @@ focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="
-w-full rounded-lg px-4 py-3 border
-bg-white text-gray-900 placeholder-gray-400
-dark:bg-slate-800 dark:text-gray-100 dark:placeholder-gray-400 dark:border-slate-600
-focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
-"
+  w-full rounded-lg px-4 py-3 border
+  bg-white text-gray-900 placeholder-gray-400 border-gray-300
+  focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
+  "
                             placeholder="비밀번호 입력"
                         />
                     </div>
