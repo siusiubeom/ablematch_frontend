@@ -133,41 +133,61 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
 
 
     useEffect(() => {
+        console.log("=== DISTANCE EFFECT START ===");
+
         setDistanceError(false);
         setDistance(null);
+
         const userLocation = localStorage.getItem("location");
         const jobAddress = data.companyAddress;
 
-        if (
-            !userLocation ||
-            !jobAddress ||
-            jobAddress === "UNKNOWN"
-        ) {
+        console.log("USER LOCATION:", userLocation);
+        console.log("JOB ADDRESS:", jobAddress);
+
+        if (!userLocation || !jobAddress || jobAddress === "UNKNOWN") {
+            console.log("DISTANCE SKIPPED - INVALID INPUT");
             setDistanceError(true);
             return;
         }
 
+        const url =
+            `/api/maps/estimate?originAddress=${encodeURIComponent(userLocation)}&destinationAddress=${encodeURIComponent(jobAddress)}`;
+
+        console.log("DISTANCE REQUEST URL:", url);
+
         apiFetch<{
             distanceMeters: number;
             durationMinutes: number;
-        }>(
-            `/api/maps/estimate?originAddress=${encodeURIComponent(userLocation)}&destinationAddress=${encodeURIComponent(jobAddress)}`
-        )
+        }>(url)
             .then((res) => {
+                console.log("DISTANCE RESPONSE:", res);
+
                 if (!res || res.distanceMeters === 0) {
+                    console.log("DISTANCE FAILED - ZERO OR NULL");
                     setDistanceError(true);
                     return;
                 }
 
+                const km = res.distanceMeters / 1000;
+                const minutes = res.durationMinutes;
+
+                console.log("DISTANCE SUCCESS:", km, "km", minutes, "minutes");
+
                 setDistance({
-                    km: res.distanceMeters / 1000,
-                    minutes: res.durationMinutes,
+                    km,
+                    minutes,
                 });
             })
-            .catch(() => {
+            .catch((err) => {
+                console.log("DISTANCE ERROR:", err);
                 setDistanceError(true);
+            })
+            .finally(() => {
+                console.log("=== DISTANCE EFFECT END ===");
             });
+
     }, [data.companyAddress]);
+
 
 
 
