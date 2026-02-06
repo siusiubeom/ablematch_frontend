@@ -61,6 +61,7 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
 
 
     useEffect(() => {
+        console.log(data.company + "a")
         if (!data.company) return;
 
         const userLocation = localStorage.getItem("location");
@@ -70,12 +71,13 @@ export default function ExplainModal({ data, onClose, sourceUrl }: Props) {
             `/api/maps/estimate?originAddress=${encodeURIComponent(userLocation)}&destinationAddress=${encodeURIComponent(data.company)}`
         ).then((res) => {
             if (!res) return;
-
+            console.log(res.distanceMeters / 1000);
             setDistance({
                 km: res.distanceMeters / 1000,
                 minutes: res.durationMinutes,
             });
         });
+        console.log(data.company + "b")
     }, [data.company]);
 
 
