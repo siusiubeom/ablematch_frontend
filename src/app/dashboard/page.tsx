@@ -25,6 +25,8 @@ import JobCard from "@/components/JobCard";
 
 export default function Dashboard() {
     const [authChecked, setAuthChecked] = useState(false);
+    const [profileChecked, setProfileChecked] = useState(false);
+
     const [tab, setTab] = useState<"matching" | "community">("matching");
 
     const [jobs, setJobs] = useState<MatchingCard[]>([]);
@@ -79,13 +81,15 @@ export default function Dashboard() {
     useEffect(() => {
         const loadProfile = async () => {
             const p = await fetchMyProfile();
-            setProfile(p);
-            setProfileLoading(false);
 
             if (!isProfileValid(p)) {
                 router.replace("/landing");
                 return;
             }
+
+            setProfile(p);
+            setProfileLoading(false);
+            setProfileChecked(true); // <-- ONLY HERE
         };
 
         loadProfile();
@@ -98,8 +102,10 @@ export default function Dashboard() {
 
 
 
+
     useEffect(() => {
         const loadMatching = async () => {
+            if (!profile) return;
             const res = await apiFetch<{
                 status: string;
                 data: MatchingCard[];
