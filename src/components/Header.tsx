@@ -61,13 +61,7 @@ export default function Header() {
                 <div className="flex items-center gap-3 relative">
 
                     <button
-                        onClick={() => {
-                            if (isLoggedIn) {
-                                router.push("/profile");
-                            } else {
-                                setShowProfile(!showProfile);
-                            }
-                        }}
+                        onClick={() => setShowProfile(!showProfile)}
                         className="w-9 h-9 rounded-full bg-gray-300 overflow-hidden border-2 border-white"
                     >
                         <img
