@@ -55,15 +55,24 @@ export default function ProfilePage() {
                 try {
                     const { latitude, longitude } = pos.coords;
 
-                    const address = await apiFetch<string>(
-                        `/api/maps/reverse?lat=${latitude}&lng=${longitude}`
+                    const res = await fetch(
+                        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/maps/reverse?lat=${latitude}&lng=${longitude}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
+                            },
+                        }
                     );
+
+                    if (!res.ok) throw new Error("reverse failed");
+
+                    const address = await res.text(); // ← 핵심
 
                     setProfile((p) =>
                         p
                             ? {
                                 ...p,
-                                location: address ?? "현재 위치",
+                                location: address || "현재 위치",
                             }
                             : p
                     );
@@ -114,7 +123,7 @@ export default function ProfilePage() {
         }
 
         const updated = await res.json();
-        setProfile(updated); // 핵심
+        setProfile(updated);
     }
 
 
