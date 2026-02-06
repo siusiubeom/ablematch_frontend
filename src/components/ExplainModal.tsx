@@ -62,24 +62,70 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
 
 
     useEffect(() => {
-        console.log(company + "a")
-        if (!company) return;
+        console.log("MAP EFFECT START", company);
 
-        const userLocation = localStorage.getItem("location");
-        if (!userLocation) return;
+        if (!company) {
+            console.log("NO COMPANY");
+            return;
+        }
 
-        apiFetch<any>(
-            `/api/maps/estimate?originAddress=${encodeURIComponent(userLocation)}&destinationAddress=${encodeURIComponent(company)}`
-        ).then((res) => {
-            if (!res) return;
-            console.log(res.distanceMeters / 1000);
-            setDistance({
-                km: res.distanceMeters / 1000,
-                minutes: res.durationMinutes,
+        if (!window.naver) {
+            console.log("NAVER NOT LOADED");
+            return;
+        }
+
+        if (!document.getElementById("naver-map")) {
+            console.log("MAP DIV NOT FOUND");
+            return;
+        }
+
+        console.log("NAVER OK", window.naver);
+
+        try {
+            const geocoder = new window.naver.maps.Service.Geocoder();
+            console.log("GEOCODER CREATED");
+
+            geocoder.geocode({ query: company }, (status: any, response: any) => {
+                console.log("GEOCODE STATUS:", status);
+                console.log("GEOCODE RESPONSE:", response);
+
+                if (status !== window.naver.maps.Service.Status.OK) {
+                    console.log("GEOCODE FAILED");
+                    return;
+                }
+
+                if (!response.v2.addresses.length) {
+                    console.log("NO ADDRESS RESULTS");
+                    return;
+                }
+
+                const result = response.v2.addresses[0];
+                const lat = parseFloat(result.y);
+                const lng = parseFloat(result.x);
+
+                console.log("LAT LNG:", lat, lng);
+
+                const location = new window.naver.maps.LatLng(lat, lng);
+
+                const map = new window.naver.maps.Map("naver-map", {
+                    center: location,
+                    zoom: 15,
+                });
+
+                console.log("MAP CREATED");
+
+                const marker = new window.naver.maps.Marker({
+                    position: location,
+                    map,
+                });
+
+                console.log("MARKER CREATED", marker);
             });
-        });
-        console.log(company + "b")
+        } catch (e) {
+            console.error("MAP ERROR", e);
+        }
     }, [company]);
+
 
 
 
