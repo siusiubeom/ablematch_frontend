@@ -83,6 +83,10 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
     useEffect(() => {
         const query = data.companyAddress || company;
 
+        console.log("GEOCODE QUERY:", query);
+        console.log("COMPANY ADDRESS:", data.companyAddress);
+        console.log("COMPANY NAME:", company);
+
         if (!naverReady || !query) return;
 
         const mapDiv = document.getElementById("naver-map");
@@ -93,17 +97,22 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
         window.naver.maps.Service.geocode(
             { query },
             (status: any, response: any) => {
+                console.log("GEOCODE STATUS:", status);
+                console.log("GEOCODE RESPONSE:", response);
+
                 if (status !== window.naver.maps.Service.Status.OK) {
                     console.log("GEOCODE FAIL");
                     return;
                 }
 
-                if (!response.v2.addresses.length) {
-                    console.log("NO ADDRESS");
+                if (!response?.v2?.addresses?.length) {
+                    console.log("NO ADDRESS", query);
                     return;
                 }
 
                 const addr = response.v2.addresses[0];
+                console.log("FOUND ADDRESS:", addr);
+
                 const latlng = new window.naver.maps.LatLng(addr.y, addr.x);
 
                 const map = new window.naver.maps.Map(mapDiv, {
@@ -118,6 +127,7 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
             }
         );
     }, [company, data.companyAddress, naverReady]);
+
 
 
 
