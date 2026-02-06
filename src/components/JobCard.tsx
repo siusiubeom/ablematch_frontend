@@ -20,7 +20,8 @@ export default function JobCard({ job, onClick }: Props) {
 
         apiFetch<any>(`/api/maps/geocode?query=${encodeURIComponent(job.company)}`)
             .then((res) => {
-                if (res?.lat && res?.lng) {
+                console.log("GEOCODE RES:", res);
+                if (res && typeof res.lat === "number" && typeof res.lng === "number") {
                     setLatlng(res);
                 }
             });
@@ -34,7 +35,7 @@ export default function JobCard({ job, onClick }: Props) {
             {latlng && (
                 <iframe
                     className="w-full h-32"
-                    src={`https://map.naver.com/v5/search/${job.company}`}
+                    src={`https://map.naver.com/v5/entry/place/${latlng.lat},${latlng.lng}`}
                     loading="lazy"
                 />
             )}
