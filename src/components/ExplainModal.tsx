@@ -54,6 +54,7 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
 
     const seed = hashString(data.jobTitle);
     const rng = mulberry32(seed);
+    const [mapError, setMapError] = useState(false);
 
     const [distance, setDistance] = useState<{
         km: number;
@@ -75,7 +76,7 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
     }, []);
 
 
-
+    const [distanceError, setDistanceError] = useState(false);
 
 
 
@@ -105,8 +106,9 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
                     return;
                 }
 
-                if (!response?.v2?.addresses?.length) {
-                    console.log("NO ADDRESS", query);
+                if (!response.v2.addresses.length) {
+                    console.log("NO ADDRESS");
+                    setMapError(true);
                     return;
                 }
 
@@ -126,13 +128,46 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
                 });
             }
         );
+
     }, [company, data.companyAddress, naverReady]);
 
 
+    useEffect(() => {
+        setDistanceError(false);
+        setDistance(null);
+        const userLocation = localStorage.getItem("location");
+        const jobAddress = data.companyAddress;
 
+        if (
+            !userLocation ||
+            !jobAddress ||
+            jobAddress === "UNKNOWN"
+        ) {
+            setDistanceError(true);
+            return;
+        }
 
+        apiFetch<{
+            distanceMeters: number;
+            durationMinutes: number;
+        }>(
+            `/api/maps/estimate?originAddress=${encodeURIComponent(userLocation)}&destinationAddress=${encodeURIComponent(jobAddress)}`
+        )
+            .then((res) => {
+                if (!res || res.distanceMeters === 0) {
+                    setDistanceError(true);
+                    return;
+                }
 
-
+                setDistance({
+                    km: res.distanceMeters / 1000,
+                    minutes: res.durationMinutes,
+                });
+            })
+            .catch(() => {
+                setDistanceError(true);
+            });
+    }, [data.companyAddress]);
 
 
 
@@ -200,6 +235,8 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
 
                 {distance ? (
                     <p>약 {distance.km.toFixed(1)}km · {distance.minutes}분</p>
+                ) : distanceError ? (
+                    <p className="text-xs text-gray-400">거리 정보 없음</p>
                 ) : localStorage.getItem("location") ? (
                     <p className="text-xs text-gray-400">거리 계산 중…</p>
                 ) : (
