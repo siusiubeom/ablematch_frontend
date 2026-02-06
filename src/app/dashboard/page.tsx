@@ -52,6 +52,11 @@ export default function Dashboard() {
     function fetchMyProfile() {
         return apiFetch<UserProfile>("/api/me/profile");
     }
+    useEffect(() => {
+        apiFetch("/api/maps/estimate-test").then(res => {
+            console.log("ESTIMATE TEST RESULT:", res);
+        });
+    }, []);
 
     useEffect(() => {
         if (!localStorage.getItem("token")) {
