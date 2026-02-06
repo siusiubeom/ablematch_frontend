@@ -43,11 +43,22 @@ export default function LandingHero({ setLoading, setStep }: any) {
 
     async function submit() {
         const token = getToken();
+        console.log("TOKEN:", token);
+
         if (!token) {
             router.push("/login");
             return;
         }
-        if (!file) return;
+
+        if (!file) {
+            console.log("NO FILE SELECTED");
+            return;
+        }
+
+        console.log("FILE OBJECT:", file);
+        console.log("FILE NAME:", file.name);
+        console.log("FILE SIZE:", file.size);
+        console.log("FILE TYPE:", file.type);
 
         setLoading(true);
         setStep(0);
@@ -55,23 +66,62 @@ export default function LandingHero({ setLoading, setStep }: any) {
         const formData1 = new FormData();
         formData1.append("file", file);
 
-        await fetch(`${BASE_URL}/api/resume/upload`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: formData1,
-        });
+        for (const [key, value] of formData1.entries()) {
+            console.log("FORMDATA ENTRY:", key, value);
+        }
 
-        const formData2 = new FormData();
-        formData2.append("file", file);
+        try {
+            console.log("=== UPLOAD START ===");
 
-        await fetch(`${BASE_URL}/api/me/profile/from-resume`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: formData2,
-        });
+            const res1 = await fetch(`${BASE_URL}/api/resume/upload`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData1,
+            });
+
+            console.log("UPLOAD STATUS:", res1.status);
+            const text1 = await res1.text();
+            console.log("UPLOAD RESPONSE BODY:", text1);
+
+            if (!res1.ok) {
+                console.error("UPLOAD FAILED");
+                setLoading(false);
+                return;
+            }
+
+        } catch (e) {
+            console.error("UPLOAD ERROR:", e);
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const formData2 = new FormData();
+            formData2.append("file", file);
+
+            console.log("=== PROFILE BUILD START ===");
+
+            const res2 = await fetch(`${BASE_URL}/api/me/profile/from-resume`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData2,
+            });
+
+            console.log("PROFILE STATUS:", res2.status);
+            const text2 = await res2.text();
+            console.log("PROFILE RESPONSE BODY:", text2);
+
+        } catch (e) {
+            console.error("PROFILE ERROR:", e);
+        }
 
         router.replace("/dashboard");
     }
+
 
 
     return (
