@@ -52,23 +52,27 @@ export default function LandingHero({ setLoading, setStep }: any) {
         setLoading(true);
         setStep(0);
 
-        const formData = new FormData();
-        formData.append("file", file);
+        const formData1 = new FormData();
+        formData1.append("file", file);
 
         await fetch(`${BASE_URL}/api/resume/upload`, {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
-            body: formData,
+            body: formData1,
         });
+
+        const formData2 = new FormData();
+        formData2.append("file", file);
 
         await fetch(`${BASE_URL}/api/me/profile/from-resume`, {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
-            body: formData,
+            body: formData2,
         });
 
         router.replace("/dashboard");
     }
+
 
     return (
         <section className="bg-white text-slate-900 dark:bg-white dark:text-slate-900">
