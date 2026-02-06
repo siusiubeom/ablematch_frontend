@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {
     Briefcase,
     MessageSquare,
@@ -118,16 +118,21 @@ export default function Dashboard() {
         console.log("SKILLS:", skills);
     }, [profile, skills]);
 
-    const effectiveSkills =
-        skills.length > 0
-            ? skills
-            : profile?.major
-                ? [profile.major]
-                : [];
 
+    const effectiveSkills = useMemo(() => {
+        if (skills.length > 0) return skills;
+        if (profile?.major) return [profile.major];
+        return [];
+    }, [skills, profile?.major]);
+
+    const lastSkillsRef = useRef<string>("");
 
     useEffect(() => {
         if (effectiveSkills.length === 0) return;
+
+        const key = effectiveSkills.join(",");
+        if (lastSkillsRef.current === key) return;
+        lastSkillsRef.current = key;
 
         apiFetch<RecommendedCourse[]>(
             `/api/courses/by-skills?` +
