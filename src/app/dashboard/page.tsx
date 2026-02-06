@@ -7,7 +7,6 @@ import {
     CheckCircle,
     MapPin,
     Star,
-    Heart,
 } from "lucide-react";
 import Header from "@/components/Header";
 import ExplainModal from "@/components/ExplainModal";
