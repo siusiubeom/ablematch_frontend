@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { getToken } from "@/lib/auth";
+import { h1 } from "framer-motion/client";
 
 export default function LandingHero({ setLoading, setStep }: any) {
     const router = useRouter();
@@ -71,7 +72,6 @@ export default function LandingHero({ setLoading, setStep }: any) {
     return (
         <section className="bg-white text-slate-900 dark:bg-white dark:text-slate-900">
             {/* PART 1 — Bigger: Logo left / Upload right */}
-            {/* PART 1 — Bigger: Logo left / Upload right */}
             <div className="relative overflow-hidden">
                 {/* subtle brand wash (no boxes) */}
                 <div className="absolute inset-0 pointer-events-none">
@@ -88,30 +88,31 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.7 }}
                             >
-                                {/* logo: bigger + slightly higher */}
-                                <div className="relative w-full max-w-[760px] aspect-[3/1] -mt-8">
+                                {/* LOGO — much bigger + higher */}
+                                <div className="relative w-full max-w-[880px] aspect-[3/1] -mt-16">
                                     <Image
                                         src="/ablematch_logo-Photoroom.png"
                                         alt="AbleMatch"
                                         fill
                                         priority
-                                        className="object-contain"
+                                        className="object-contain scale-110"
                                     />
                                 </div>
 
-                                {/* headline + paragraph: moved lower */}
-                                <div className="mt-16">
+                                {/* TEXT — pushed lower */}
+                                <div className="mt-24">
                                     <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.03]">
                                         AI로 연결하는
                                         <span className="block text-[#2E75B6]">커리어 매칭</span>
                                     </h1>
 
-                                    <p className="mt-5 text-lg md:text-xl text-slate-600 dark:text-slate-600 max-w-2xl">
+                                    <p className="mt-6 text-lg md:text-xl text-slate-600 dark:text-slate-600 max-w-2xl">
                                         이력서 업로드 한 번으로, 현실적으로 가능한 로드맵과 기업을 제안합니다.
                                     </p>
                                 </div>
                             </motion.div>
                         </div>
+
 
                         {/* Right */}
                         <div className="lg:col-span-5">
