@@ -48,7 +48,7 @@ export default function Header() {
                     </span>
                 </div>
 
-                <nav className="flex gap-6 font-bold text-gray-700">
+                <nav className="flex gap-10 font-bold text-gray-700">
                     <button onClick={() => router.push("/dashboard")}>
                         대시보드
                     </button>

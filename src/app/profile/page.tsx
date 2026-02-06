@@ -41,7 +41,7 @@ export default function ProfilePage() {
             }),
         });
 
-        alert("저장되었습니다");
+        router.replace("/dashboard");
     }
 
     async function detectLocation() {
