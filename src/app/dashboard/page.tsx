@@ -54,6 +54,12 @@ export default function Dashboard() {
         setAuthChecked(true);
     }, [router]);
 
+    function isProfileValid(p: UserProfile | null) {
+        if (!p) return false;
+        return !!(p.name);
+    }
+
+
 
     function fetchMyProfile() {
         return apiFetch<UserProfile>("/api/me/profile");
@@ -71,19 +77,21 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => {
-        if (!localStorage.getItem("token")) {
-            setProfileLoading(false);
-            return;
-        }
-
         const loadProfile = async () => {
-            const profile = await fetchMyProfile();
-            setProfile(profile); // profile may be null
+            const p = await fetchMyProfile();
+            setProfile(p);
             setProfileLoading(false);
+
+            if (!isProfileValid(p)) {
+                router.replace("/landing");
+                return;
+            }
         };
 
         loadProfile();
-    }, []);
+    }, [router]);
+
+
 
 
 
@@ -185,9 +193,7 @@ export default function Dashboard() {
         setExplain(data);
     }
 
-    if (!authChecked) {
-        return null;
-    }
+    if (!authChecked || profileLoading) return null;
 
     return (
         <>
