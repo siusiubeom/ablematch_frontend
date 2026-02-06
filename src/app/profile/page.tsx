@@ -45,28 +45,46 @@ export default function ProfilePage() {
         alert("저장되었습니다");
     }
 
+
+
     async function detectLocation() {
         setLocLoading(true);
 
-        navigator.geolocation.getCurrentPosition(async (pos) => {
-            const { latitude, longitude } = pos.coords;
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                try {
+                    const { latitude, longitude } = pos.coords;
 
-            const geo = await apiFetch<any>(
-                `/api/maps/geocode?query=${latitude},${longitude}`
-            );
+                    const address = await apiFetch<string>(
+                        `/api/maps/reverse?lat=${latitude}&lng=${longitude}`
+                    );
 
-            setProfile((p) =>
-                p
-                    ? {
-                        ...p,
-                        location: geo?.roadAddress ?? "현재 위치",
-                    }
-                    : p
-            );
-
-            setLocLoading(false);
-        });
+                    setProfile((p) =>
+                        p
+                            ? {
+                                ...p,
+                                location: address ?? "현재 위치",
+                            }
+                            : p
+                    );
+                } catch (e) {
+                    alert("위치를 가져오지 못했습니다.");
+                } finally {
+                    setLocLoading(false);
+                }
+            },
+            (err) => {
+                alert("위치 권한이 거부되었거나 오류가 발생했습니다.");
+                setLocLoading(false);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+            }
+        );
     }
+
+
 
 
 
@@ -184,9 +202,4 @@ export default function ProfilePage() {
     );
 }
 
-async function geocodeFromCoords(lat: number, lng: number) {
-    const res = await apiFetch<{ lat: number; lng: number }>(
-        `/api/maps/geocode?query=${lat},${lng}`
-    );
-    return res;
-}
+
