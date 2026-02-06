@@ -86,11 +86,11 @@ export default function LandingHero({ setLoading, setStep }: any) {
                             <motion.div
                                 initial={{ opacity: 0, y: 24 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 1.1, ease: "easeOut" }}
-                                className="pl-0 -ml-6"
+                                transition={{ duration: 1.15, ease: "easeOut" }}
+                                className="-ml-12"   // more left
                             >
-                                {/* LOGO — bigger, lower, more left */}
-                                <div className="relative w-full max-w-[960px] aspect-[3/1] mt-12">
+                                {/* LOGO — left + big */}
+                                <div className="relative w-full max-w-[960px] aspect-[3/1] mt-10">
                                     <Image
                                         src="/ablematch_logo-Photoroom.png"
                                         alt="AbleMatch"
@@ -100,8 +100,8 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                     />
                                 </div>
 
-                                {/* TEXT — much lower */}
-                                <div className="mt-40">
+                                {/* TEXT — slightly higher than before */}
+                                <div className="mt-28">
                                     <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.03]">
                                         AI로 연결하는
                                         <span className="block text-[#2E75B6]">커리어 매칭</span>
@@ -113,6 +113,7 @@ export default function LandingHero({ setLoading, setStep }: any) {
                                 </div>
                             </motion.div>
                         </div>
+
 
 
 
@@ -239,7 +240,7 @@ export default function LandingHero({ setLoading, setStep }: any) {
                         initial={{ opacity: 0, y: 14 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, amount: 0.35 }}
-                        transition={{ duration: 0.7 }}
+                        transition={{ duration: 1.2, ease: "easeOut" }}
                         className="lg:col-span-7"
                     >
                         <div className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.02]">
@@ -261,7 +262,7 @@ export default function LandingHero({ setLoading, setStep }: any) {
                         initial={{ opacity: 0, y: 14 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, amount: 0.35 }}
-                        transition={{ delay: 0.05, duration: 0.7 }}
+                        transition={{ delay: 0.15, duration: 1.2, ease: "easeOut" }}
                         className="lg:col-span-5"
                     >
                         <div className="relative w-full aspect-[4/3]">
@@ -285,7 +286,7 @@ export default function LandingHero({ setLoading, setStep }: any) {
                     initial={{ opacity: 0, y: 14 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.35 }}
-                    transition={{ duration: 0.7 }}
+                    transition={{ duration: 1.25, ease: "easeOut" }}
                     className="grid grid-cols-1 lg:grid-cols-12 gap-12"
                 >
                     <div className="lg:col-span-5">
