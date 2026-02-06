@@ -59,6 +59,12 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => {
+        apiFetch("/api/maps/geocode-debug").then(res => {
+            console.log("GECODE DEBUG RESULT:", res);
+        });
+    }, []);
+
+    useEffect(() => {
         if (!localStorage.getItem("token")) {
             setProfileLoading(false);
             return;
