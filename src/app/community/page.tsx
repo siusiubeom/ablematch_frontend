@@ -20,8 +20,9 @@ type Comment = {
     authorAlias: string;
     content: string;
     createdAt: string;
+    isPostAuthor: boolean;
+    isOwner: boolean;
 };
-
 type FeedPost = {
     id: string;
     author: string;
@@ -29,8 +30,9 @@ type FeedPost = {
     likeCount: number;
     commentCount: number;
     createdAt: string;
-    comments?: Comment[];
+    isOwner: boolean;
 };
+
 
 export default function CommunityPage() {
     const router = useRouter();
@@ -212,12 +214,33 @@ focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
                                         <p className="text-xs text-gray-500">
                                             {new Date(post.createdAt).toLocaleDateString()}
                                         </p>
+                                        {post.isOwner && (
+                                            <button
+                                                onClick={async () => {
+                                                    const token = localStorage.getItem("token");
+                                                    if (!token) {
+                                                        router.push("/login");
+                                                        return;
+                                                    }
+
+                                                    await apiFetch(`/api/community/post/${post.id}`, {
+                                                        method: "DELETE",
+                                                    });
+                                                    loadFeed();
+                                                }}
+                                                className="text-xs text-red-500 hover:underline ml-2"
+                                            >
+                                                삭제
+                                            </button>
+                                        )}
+
                                     </div>
                                 </div>
 
                                 <p className="text-gray-700 text-sm leading-relaxed mb-4">
                                     {post.content}
                                 </p>
+
 
                                 <div className="flex gap-6 border-t pt-3 text-sm text-gray-500">
                                     <button className="flex items-center gap-1 hover:text-[#1A365D]">
@@ -239,13 +262,39 @@ focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
                                     </button>
                                 </div>
 
-                                {/* COMMENT PANEL */}
                                 {expandedPost === post.id && (
                                     <div className="mt-4 border-t pt-4 space-y-3">
                                         {comments[post.id]?.map((c) => (
-                                            <div key={c.id} className="text-sm">
-                                                <span className="font-bold mr-2">{c.authorAlias}</span>
+                                            <div key={c.id} className="text-sm flex items-center gap-2">
+                                                <span
+                                                    className={`font-bold mr-2 ${
+                                                        c.isPostAuthor ? "text-blue-600" : ""
+                                                    }`}
+                                                >
+  {c.authorAlias}
+</span>
                                                 <span className="text-gray-700">{c.content}</span>
+                                                {c.isOwner && (
+                                                <button
+                                                    onClick={async () => {
+                                                        const token = localStorage.getItem("token");
+                                                        if (!token) {
+                                                            router.push("/login");
+                                                            return;
+                                                        }
+
+                                                        await apiFetch(`/api/community/comment/${c.id}`, {
+                                                            method: "DELETE",
+                                                        });
+                                                        loadComments(post.id);
+                                                        loadFeed();
+                                                    }}
+                                                    className="text-xs text-red-400 hover:underline"
+                                                >
+                                                    삭제
+                                                </button>
+                                                )}
+
                                             </div>
                                         ))}
 
