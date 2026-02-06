@@ -237,11 +237,14 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
                 </div>
 
                 {distance ? (
-                    <p>약 {distance.km.toFixed(1)}km · {distance.minutes}분</p>
+                    <p className="text-sm font-bold text-gray-800">
+                        약 {distance.km.toFixed(1)}km · {distance.minutes}분
+                    </p>
+
                 ) : distanceError ? (
-                    <p className="text-xs text-gray-400">프로필 위치 수정해주세요</p>
+                    <p className="text-xs font-semibold text-gray-600">프로필 위치 수정해주세요</p>
                 ) : (
-                    <p className="text-xs text-gray-400">거리 계산 중…</p>
+                    <p className="text-xs font-semibold text-gray-600">거리 계산 중…</p>
                 )}
 
 
