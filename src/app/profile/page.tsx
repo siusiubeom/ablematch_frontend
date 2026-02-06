@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import {getProfileImage} from "@/lib/profileImage";
+import { getProfileImage } from "@/lib/profileImage";
 
 type Profile = {
     name: string;
@@ -20,7 +20,6 @@ export default function ProfilePage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
     const [locLoading, setLocLoading] = useState(false);
-
 
     useEffect(() => {
         apiFetch<Profile>("/api/me/profile").then((res) => {
@@ -45,8 +44,6 @@ export default function ProfilePage() {
         alert("저장되었습니다");
     }
 
-
-
     async function detectLocation() {
         setLocLoading(true);
 
@@ -66,7 +63,7 @@ export default function ProfilePage() {
 
                     if (!res.ok) throw new Error("reverse failed");
 
-                    const address = await res.text(); // ← 핵심
+                    const address = await res.text();
 
                     setProfile((p) =>
                         p
@@ -82,24 +79,14 @@ export default function ProfilePage() {
                     setLocLoading(false);
                 }
             },
-            (err) => {
+            () => {
                 alert("위치 권한이 거부되었거나 오류가 발생했습니다.");
                 setLocLoading(false);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
             }
         );
     }
 
-
-
-
-
-    async function handleImageUpload(
-        e: React.ChangeEvent<HTMLInputElement>
-    ) {
+    async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
         if (!e.target.files?.length) return;
 
         const file = e.target.files[0];
@@ -126,37 +113,46 @@ export default function ProfilePage() {
         setProfile(updated);
     }
 
+    if (loading)
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <div className="w-10 h-10 border-4 border-[#38B2AC] border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
 
-
-    if (loading) return <p className="p-10">Loading...</p>;
     if (!profile) return <p className="p-10">No profile</p>;
 
     return (
         <>
             <Header />
 
-            <section className="max-w-3xl mx-auto p-8 space-y-6">
-                <h1 className="text-2xl font-bold">내 프로필</h1>
+            <section className="max-w-3xl mx-auto p-8 space-y-8 bg-white text-gray-900">
+                <h1 className="text-3xl font-extrabold tracking-tight">내 프로필</h1>
 
-                <div className="flex items-center gap-4">
+                {/* Avatar */}
+                <div className="flex items-center gap-6">
                     <img
                         src={getProfileImage(profile.profileImageUrl)}
-                        className="w-24 h-24 rounded-full bg-gray-200"
+                        className="w-28 h-28 rounded-full bg-gray-200 border-4 border-white shadow-md"
                     />
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                    />
-                </div>
 
+                    <label className="text-sm font-bold text-[#2E75B6] cursor-pointer hover:opacity-80">
+                        프로필 이미지 변경
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                        />
+                    </label>
+                </div>
 
                 <input
                     value={profile.name}
                     onChange={(e) =>
                         setProfile({ ...profile, name: e.target.value })
                     }
-                    className="w-full border p-3 rounded"
+                    className="w-full border border-gray-200 p-4 rounded-lg focus:ring-2 focus:ring-[#2E75B6]/30 outline-none"
                     placeholder="이름"
                 />
 
@@ -166,35 +162,32 @@ export default function ProfilePage() {
                     onChange={(e) =>
                         setProfile({ ...profile, gpa: e.target.value })
                     }
-                    className="w-full border p-3 rounded"
+                    className="w-full border border-gray-200 p-4 rounded-lg focus:ring-2 focus:ring-[#2E75B6]/30 outline-none"
                     placeholder="학점 (예: 4.12/4.5)"
                 />
-
-
-
 
                 <input
                     value={profile.preferredRole}
                     onChange={(e) =>
                         setProfile({ ...profile, preferredRole: e.target.value })
                     }
-                    className="w-full border p-3 rounded"
+                    className="w-full border border-gray-200 p-4 rounded-lg focus:ring-2 focus:ring-[#2E75B6]/30 outline-none"
                     placeholder="희망 직무"
                 />
 
-                <div className="space-y-2">
+                <div className="space-y-3">
                     <input
                         value={profile.location ?? ""}
                         onChange={(e) =>
                             setProfile({ ...profile, location: e.target.value })
                         }
-                        className="w-full border p-3 rounded"
+                        className="w-full border border-gray-200 p-4 rounded-lg focus:ring-2 focus:ring-[#2E75B6]/30 outline-none"
                         placeholder="위치"
                     />
 
                     <button
                         onClick={detectLocation}
-                        className="px-4 py-2 bg-blue-100 rounded"
+                        className="px-4 py-2 text-sm font-bold text-[#2E75B6] bg-[#2E75B6]/10 rounded-lg hover:opacity-80 transition"
                     >
                         {locLoading ? "위치 찾는 중..." : "현재 위치 감지"}
                     </button>
@@ -202,7 +195,7 @@ export default function ProfilePage() {
 
                 <button
                     onClick={saveProfile}
-                    className="px-6 py-3 bg-[#1A365D] text-white rounded-lg font-bold"
+                    className="w-full py-4 bg-[#1A365D] text-white font-extrabold rounded-lg hover:bg-[#2C5282] transition"
                 >
                     저장
                 </button>
@@ -210,5 +203,3 @@ export default function ProfilePage() {
         </>
     );
 }
-
-
