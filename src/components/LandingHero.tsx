@@ -132,14 +132,14 @@ export default function LandingHero({ setLoading, setStep }: any) {
                     <div className="absolute -bottom-40 -right-40 h-[560px] w-[560px] rounded-full blur-3xl opacity-15 bg-[#ED7D31]" />
                 </div>
 
-                <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-28">
+                <div className="relative max-w-7xl mx-auto px-6 pt-8 pb-28">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[72vh]">
                         <div className="lg:col-span-7">
                             <motion.div
                                 initial={{ opacity: 0, y: 24 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 1.15, ease: "easeOut" }}
-                                className="-ml-12"   // more left
+                                className="-ml-12"
                             >
                                 <div className="relative w-full max-w-[960px] aspect-[3/1] mt-10">
                                     <Image

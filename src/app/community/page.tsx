@@ -76,8 +76,16 @@ export default function CommunityPage() {
         setNewComment(prev => ({ ...prev, [postId]: "" }));
 
         await loadComments(postId);
-        await loadFeed();
+
+        setPosts(prev =>
+            prev.map(p =>
+                p.id === postId
+                    ? { ...p, commentCount: p.commentCount + 1 }
+                    : p
+            )
+        );
     }
+
 
 
 
