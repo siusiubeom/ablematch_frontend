@@ -1,13 +1,12 @@
 "use client";
 
-import { Bell, Eye, Type, LogOut } from "lucide-react";
-import {useEffect, useState} from "react";
-import { User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { getProfileImage } from "@/lib/profileImage";
 import { apiFetch } from "@/lib/api";
-import {UserProfile} from "@/lib/types";
-import { nav } from "framer-motion/client";
+import { UserProfile } from "@/lib/types";
 
 function getToken() {
     if (typeof window === "undefined") return null;
@@ -18,12 +17,16 @@ function logout() {
     localStorage.removeItem("token");
 }
 
+interface HeaderProps {
+    hideNav?: boolean;
+}
 
-export default function Header() {
+export default function Header({ hideNav = false }: HeaderProps) {
     const router = useRouter();
     const [showProfile, setShowProfile] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!getToken());
     const [profileImage, setProfileImage] = useState<string | null>(null);
+
     useEffect(() => {
         if (!getToken()) return;
 
@@ -32,36 +35,45 @@ export default function Header() {
         });
     }, []);
 
-
     return (
         <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200">
-            <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-8">
+            <div className="container mx-auto px-4 h-16 flex items-center justify-between">
 
-
-            <div
-                    className="flex items-center gap-2 cursor-pointer"
+                <div
+                    className="flex items-center gap-3 cursor-pointer"
                     onClick={() => router.push("/")}
                 >
-                    <div className="w-9 h-9 rounded flex items-center justify-center font-bold text-xl bg-[#1A365D] text-white">
-                        A
-                    </div>
+                    <Image
+                        src="/icon.png"
+                        alt="logo"
+                        width={36}
+                        height={36}
+                        className="rounded"
+                        priority
+                    />
                     <span className="text-2xl font-bold tracking-tight text-[#1A365D]">
-                        ABLE MATCH
-                    </span>
+            ABLE MATCH
+          </span>
                 </div>
 
-                <nav className="flex gap-12 font-bold text-gray-700">
-                    <button onClick={() => router.push("/dashboard")}>
-                        대시보드
-                    </button>
-                    <button onClick={() => router.push("/community")}>
-                        커뮤니티
-                    </button>
-                </nav>
-
+                {!hideNav && (
+                    <nav className="flex items-center gap-16 font-bold text-gray-700">
+                        <button
+                            onClick={() => router.push("/dashboard")}
+                            className="hover:text-[#1A365D] transition"
+                        >
+                            대시보드
+                        </button>
+                        <button
+                            onClick={() => router.push("/community")}
+                            className="hover:text-[#1A365D] transition"
+                        >
+                            커뮤니티
+                        </button>
+                    </nav>
+                )}
 
                 <div className="flex items-center gap-3 relative">
-
                     <button
                         onClick={() => setShowProfile(!showProfile)}
                         className="w-9 h-9 rounded-full bg-gray-300 overflow-hidden border-2 border-white"
@@ -97,6 +109,7 @@ export default function Header() {
                         </div>
                     )}
                 </div>
+
             </div>
         </header>
     );

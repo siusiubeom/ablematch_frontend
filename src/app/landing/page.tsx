@@ -11,6 +11,8 @@ export default function Home() {
     return (
         <>
 
+            <Header hideNav />
+
             {loading && (
                 <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center text-white">
                     <div className="w-20 h-20 border-4 border-orange-400 border-t-transparent rounded-full animate-spin" />

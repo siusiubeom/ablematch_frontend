@@ -72,7 +72,6 @@ export default function Dashboard() {
         return apiFetch<UserProfile>("/api/me/profile");
     }
 
-    // ---------------- DEBUG MAPS ----------------
     useEffect(() => {
         apiFetch("/api/maps/estimate-test").then((res) => {
             console.log("[MAP ESTIMATE TEST]", res);
@@ -85,7 +84,6 @@ export default function Dashboard() {
         });
     }, []);
 
-    // ---------------- PROFILE LOAD ----------------
     useEffect(() => {
         console.log("[PROFILE EFFECT] Loading profile...");
         const loadProfile = async () => {
@@ -113,7 +111,6 @@ export default function Dashboard() {
         loadProfile();
     }, [router]);
 
-    // ---------------- MATCHING ----------------
     useEffect(() => {
         console.log("[MATCHING EFFECT] profile changed:", profile);
         if (!profile) return;
@@ -147,7 +144,6 @@ export default function Dashboard() {
         console.log("[JOBS CHANGED] sample:", jobs[0]);
     }, [jobs]);
 
-    // ---------------- SKILLS ----------------
     const SKILL_MAP: Record<string, string[]> = {
         "전공 적합": [profile?.major ?? ""],
         "기술 스택": ["Spring", "Backend"],
@@ -207,7 +203,6 @@ export default function Dashboard() {
         });
     }, [effectiveSkills]);
 
-    // ---------------- BOARD ----------------
     useEffect(() => {
         console.log("[BOARD EFFECT]", tab, boardSort);
         if (tab !== "community") return;
@@ -221,7 +216,6 @@ export default function Dashboard() {
         );
     }, [tab, boardSort]);
 
-    // ---------------- EXPLAIN ----------------
     async function openExplain(job: MatchingCard) {
         console.log("[EXPLAIN OPEN]", job.jobId);
         const data = await apiFetch<MatchingExplain>(

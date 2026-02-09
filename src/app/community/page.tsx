@@ -76,7 +76,9 @@ export default function CommunityPage() {
         setNewComment(prev => ({ ...prev, [postId]: "" }));
 
         await loadComments(postId);
+        await loadFeed();
     }
+
 
 
 
@@ -132,16 +134,15 @@ export default function CommunityPage() {
                 <div className="bg-white text-gray-900 rounded-xl shadow-sm border overflow-hidden">
                         <div className="h-20 bg-[#1A365D]" />
 
-                        <div className="px-6 pb-6 relative text-center">
+                    <div className="px-6 pb-6 text-center">
                             {profileLoading ? (
                                 <p className="mt-6 text-sm text-gray-500">Loading...</p>
                             ) : profile ? (
                                 <>
                                     <img
                                         src={getProfileImage(profile.profileImageUrl)}
-                                        className="w-20 h-20 rounded-full border-4 border-white absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-200"
+                                        className="w-20 h-20 rounded-full border-4 border-white bg-gray-200 mx-auto -mt-10 mb-3"
                                     />
-
                                     <div className="mt-12">
                                         <h2 className="font-bold text-lg">{profile.name}</h2>
                                         <p className="text-sm text-gray-500">
