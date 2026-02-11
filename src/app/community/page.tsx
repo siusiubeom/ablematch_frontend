@@ -36,6 +36,7 @@ type FeedPost = {
     isOwner: boolean;
     isLikedByMe: boolean;
 };
+import { BASE_URL } from "@/lib/api";
 
 export default function CommunityPage() {
     const router = useRouter();
@@ -58,7 +59,7 @@ export default function CommunityPage() {
 
     const [boardJobs, setBoardJobs] = useState<JobBoardItem[]>([]);
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+    const API_BASE = BASE_URL;
 
 
     async function loadFeed() {
