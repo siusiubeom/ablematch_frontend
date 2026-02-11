@@ -27,6 +27,7 @@ export default function ExplainModal({ data, company, onClose, sourceUrl, jobId 
             const res = await apiFetch<{ message: string }>(
                 `/api/matching/${jobId}/recommendation`
             );
+            if (!res) return;
             setAiReco(res.message);
         } finally {
             setLoadingReco(false);
