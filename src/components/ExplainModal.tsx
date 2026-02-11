@@ -249,8 +249,16 @@ export default function ExplainModal({ data, company, onClose, sourceUrl, jobId 
 
     return (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
-            <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-6">
-                {company && (
+            <div
+                className="
+    bg-white w-full max-w-lg
+    rounded-2xl shadow-2xl
+    p-6 space-y-6
+    max-h-[85vh]
+    overflow-y-auto
+  "
+            >
+            {company && (
                     <div
                         id="naver-map"
                         className="w-full h-40 rounded-lg mb-4 cursor-pointer"
