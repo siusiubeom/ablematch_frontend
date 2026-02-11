@@ -163,8 +163,17 @@ function OtherPeopleSection() {
 
         setDetailLoading(false);
     }
+    const [meId, setMeId] = useState<string | null>(null);
+
+    useEffect(() => {
+        apiFetch<UserProfile>("/api/me/profile").then((me) => {
+            if (me) setMeId(me.id);
+        });
+    }, []);
+
 
     if (people.length === 0) return null;
+
 
 
 
@@ -180,7 +189,7 @@ function OtherPeopleSection() {
                 </div>
 
                 <div className="space-y-2">
-                    {people.map((p) => (
+                    {people.filter(p => p.userId !== meId).map((p) => (
                         <div
                             key={p.userId}
                             className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"
@@ -486,6 +495,16 @@ export default function CommunityPage() {
         if (res) setExperiences(res);
     }
 
+    async function deleteExperience(id: string) {
+        await apiFetch(`/api/me/experience/${id}`, {
+            method: "DELETE",
+        });
+
+        const res = await apiFetch<Experience[]>("/api/me/experience");
+        if (res) setExperiences(res);
+    }
+
+
 
     return (
         <>
@@ -752,6 +771,7 @@ export default function CommunityPage() {
                                         </p>
                                     </SectionCard>
 
+
                                     <SectionCard
                                         title="경력"
                                         icon={<BriefcaseBusiness size={16} className="text-gray-700" />}
@@ -759,21 +779,26 @@ export default function CommunityPage() {
                                         <div className="space-y-4">
 
                                             {experiences.map((exp) => (
-                                                <div key={exp.id} className="border rounded-xl p-4 space-y-2">
-                                                    <div className="flex justify-between">
-                                                        <div>
-                                                            <div className="font-bold text-gray-900">{exp.title}</div>
-                                                            <div className="text-sm text-gray-600">{exp.company}</div>
-                                                            <div className="text-xs text-gray-500">
-                                                                {exp.startDate} ~ {exp.endDate || "현재"}
-                                                            </div>
-                                                        </div>
+                                                <div
+                                                    key={exp.id}
+                                                    className="border rounded-xl p-4 flex gap-4 items-start bg-white"
+                                                >
+                                                    <div className="relative">
+                                                        <img
+                                                            src={
+                                                                exp.imageUrl
+                                                                    ? `${API_BASE}${exp.imageUrl}`
+                                                                    : "/placeholder.png"
+                                                            }
+                                                            className="w-20 h-20 rounded object-cover border"
+                                                        />
 
-                                                        <label className="cursor-pointer text-sm text-[#0A66C2]">
-                                                            이미지
+                                                        <label className="absolute bottom-0 right-0 bg-white border rounded-full px-2 py-1 text-xs cursor-pointer shadow">
+                                                            ✏️
                                                             <input
                                                                 hidden
                                                                 type="file"
+                                                                accept="image/*"
                                                                 onChange={(e) => {
                                                                     const f = e.target.files?.[0];
                                                                     if (f) uploadExpImage(exp.id, f);
@@ -782,31 +807,44 @@ export default function CommunityPage() {
                                                         </label>
                                                     </div>
 
-                                                    {exp.imageUrl && (
-                                                        <img
-                                                            src={`${API_BASE}${exp.imageUrl}`}
-                                                            className="w-20 h-20 rounded object-cover"
-                                                        />
-                                                    )}
+                                                    {/* TEXT RIGHT */}
+                                                    <div className="flex-1 text-black">
+                                                        <div className="flex justify-between">
+                                                            <div>
+                                                                <div className="font-bold">{exp.title}</div>
+                                                                <div className="text-sm">{exp.company}</div>
+                                                                <div className="text-xs text-gray-500">
+                                                                    {exp.startDate} ~ {exp.endDate || "현재"}
+                                                                </div>
+                                                            </div>
 
-                                                    {exp.description && (
-                                                        <p className="text-sm text-gray-700">{exp.description}</p>
-                                                    )}
+                                                            <button
+                                                                onClick={() => deleteExperience(exp.id)}
+                                                                className="text-red-500 text-xs font-bold hover:underline"
+                                                            >
+                                                                삭제
+                                                            </button>
+                                                        </div>
+
+                                                        {exp.description && (
+                                                            <p className="text-sm mt-2">{exp.description}</p>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             ))}
 
-                                            <div className="border rounded-xl p-4 space-y-2">
+                                            <div className="border rounded-xl p-4 space-y-2 bg-white">
                                                 <input
                                                     placeholder="회사"
                                                     value={newExp.company}
                                                     onChange={(e) => setNewExp({ ...newExp, company: e.target.value })}
-                                                    className="w-full border rounded p-2"
+                                                    className="w-full border rounded p-2 text-black"
                                                 />
                                                 <input
                                                     placeholder="직함"
                                                     value={newExp.title}
                                                     onChange={(e) => setNewExp({ ...newExp, title: e.target.value })}
-                                                    className="w-full border rounded p-2"
+                                                    className="w-full border rounded p-2 text-black"
                                                 />
                                                 <textarea
                                                     placeholder="설명"
@@ -814,7 +852,7 @@ export default function CommunityPage() {
                                                     onChange={(e) =>
                                                         setNewExp({ ...newExp, description: e.target.value })
                                                     }
-                                                    className="w-full border rounded p-2"
+                                                    className="w-full border rounded p-2 text-black"
                                                 />
 
                                                 <button
@@ -827,6 +865,8 @@ export default function CommunityPage() {
 
                                         </div>
                                     </SectionCard>
+
+
 
 
                                     <SectionCard
