@@ -6,13 +6,7 @@ import { apiFetch, BASE_URL } from "@/lib/api";
 import { JobBoardItem, UserProfile } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { getProfileImage } from "@/lib/profileImage";
-import {
-    MessageSquare,
-    Heart,
-    Eye,
-    Briefcase,
-    ImagePlus,
-} from "lucide-react";
+import { MessageSquare, User, ImagePlus, Briefcase, Eye, Heart } from "lucide-react";
 
 type Comment = {
     id: string;
@@ -36,6 +30,49 @@ type FeedPost = {
     isOwner: boolean;
     isLikedByMe: boolean;
 };
+
+function OtherPeopleSection() {
+    const [people, setPeople] = useState<any[]>([]);
+
+    useEffect(() => {
+        apiFetch("/api/public-profile/list").then((res: any) => {
+            if (res) setPeople(res);
+        });
+    }, []);
+
+    if (people.length === 0) return null;
+
+    return (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+            <h3 className="font-bold mb-4 text-gray-900 dark:text-gray-100">
+                다른 사용자 둘러보기
+            </h3>
+
+            <div className="space-y-3">
+                {people.map((p) => (
+                    <div
+                        key={p.userId}
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition"
+                    >
+                        <img
+                            src={getProfileImage(p.profileImageUrl)}
+                            className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <div className="flex-1">
+                            <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+                                {p.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {p.headline}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 
 export default function CommunityPage() {
     const router = useRouter();
@@ -204,29 +241,30 @@ export default function CommunityPage() {
 
                 <main className="lg:col-span-6 space-y-6">
 
-                    <div className="flex rounded-xl p-1 border bg-white">
+                    <div className="flex rounded-2xl p-1 border bg-white dark:bg-gray-800 dark:border-gray-700 shadow-sm">
                         <button
                             onClick={() => setTab("feed")}
-                            className={`flex-1 py-3 font-bold rounded-lg ${
+                            className={`flex-1 py-3 font-bold rounded-xl flex items-center justify-center gap-2 transition ${
                                 tab === "feed"
                                     ? "bg-[#1A365D] text-white shadow"
-                                    : "text-gray-500"
+                                    : "text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                             }`}
                         >
-                            커뮤니티
+                            <MessageSquare size={16} /> 커뮤니티
                         </button>
 
                         <button
                             onClick={() => setTab("portfolio")}
-                            className={`flex-1 py-3 font-bold rounded-lg ${
+                            className={`flex-1 py-3 font-bold rounded-xl flex items-center justify-center gap-2 transition ${
                                 tab === "portfolio"
                                     ? "bg-[#1A365D] text-white shadow"
-                                    : "text-gray-500"
+                                    : "text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                             }`}
                         >
-                            내 포트폴리오
+                            <User size={16} /> 포트폴리오
                         </button>
                     </div>
+
                     {tab === "feed" && (
                         <>
                             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
@@ -324,67 +362,96 @@ export default function CommunityPage() {
             )}
                     {tab === "portfolio" && (
                         publicProfile ? (
-                            <div className="bg-white rounded-xl border p-6 space-y-4">
-                                <input
-                                    className="w-full border p-2 rounded"
-                                    placeholder="Headline"
-                                    value={publicProfile.headline ?? ""}
-                                    onChange={(e) =>
-                                        setPublicProfile({ ...publicProfile, headline: e.target.value })
-                                    }
-                                />
+                            <div className="space-y-6">
 
-                                <textarea
-                                    className="w-full border p-2 rounded"
-                                    rows={4}
-                                    placeholder="Bio"
-                                    value={publicProfile.bio ?? ""}
-                                    onChange={(e) =>
-                                        setPublicProfile({ ...publicProfile, bio: e.target.value })
-                                    }
-                                />
+                                {/* ===== PORTFOLIO EDIT CARD ===== */}
+                                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-8 space-y-6">
 
-                                <input
-                                    className="w-full border p-2 rounded"
-                                    placeholder="Portfolio URL"
-                                    value={publicProfile.portfolioUrl ?? ""}
-                                    onChange={(e) =>
-                                        setPublicProfile({ ...publicProfile, portfolioUrl: e.target.value })
-                                    }
-                                />
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <User size={18} className="text-[#1A365D]" />
+                                        <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100">
+                                            내 포트폴리오
+                                        </h3>
+                                    </div>
 
-                                <input
-                                    className="w-full border p-2 rounded"
-                                    placeholder="GitHub URL"
-                                    value={publicProfile.githubUrl ?? ""}
-                                    onChange={(e) =>
-                                        setPublicProfile({ ...publicProfile, githubUrl: e.target.value })
-                                    }
-                                />
+                                    <div className="space-y-4">
 
-                                <input
-                                    className="w-full border p-2 rounded"
-                                    placeholder="LinkedIn URL"
-                                    value={publicProfile.linkedinUrl ?? ""}
-                                    onChange={(e) =>
-                                        setPublicProfile({ ...publicProfile, linkedinUrl: e.target.value })
-                                    }
-                                />
+                                        <input
+                                            className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 text-sm text-gray-900 dark:text-gray-100"
+                                            placeholder="한 줄 소개 (Headline)"
+                                            value={publicProfile.headline ?? ""}
+                                            onChange={(e) =>
+                                                setPublicProfile({ ...publicProfile, headline: e.target.value })
+                                            }
+                                        />
 
-                                <button
-                                    onClick={savePublicProfile}
-                                    className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]"
-                                >
-                                    {savingProfile ? "저장 중..." : "저장"}
-                                </button>
+                                        <textarea
+                                            className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 text-sm text-gray-900 dark:text-gray-100"
+                                            rows={4}
+                                            placeholder="자기소개 (Bio)"
+                                            value={publicProfile.bio ?? ""}
+                                            onChange={(e) =>
+                                                setPublicProfile({ ...publicProfile, bio: e.target.value })
+                                            }
+                                        />
+
+                                        <input
+                                            className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 text-sm"
+                                            placeholder="Portfolio URL"
+                                            value={publicProfile.portfolioUrl ?? ""}
+                                            onChange={(e) =>
+                                                setPublicProfile({ ...publicProfile, portfolioUrl: e.target.value })
+                                            }
+                                        />
+
+                                        <input
+                                            className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 text-sm"
+                                            placeholder="GitHub URL"
+                                            value={publicProfile.githubUrl ?? ""}
+                                            onChange={(e) =>
+                                                setPublicProfile({ ...publicProfile, githubUrl: e.target.value })
+                                            }
+                                        />
+
+                                        <input
+                                            className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 text-sm"
+                                            placeholder="LinkedIn URL"
+                                            value={publicProfile.linkedinUrl ?? ""}
+                                            onChange={(e) =>
+                                                setPublicProfile({ ...publicProfile, linkedinUrl: e.target.value })
+                                            }
+                                        />
+
+                                        <input
+                                            className="w-full border border-gray-200 dark:border-gray-600 dark:bg-gray-700 rounded-lg p-3 text-sm"
+                                            placeholder="Skills (comma separated)"
+                                            value={publicProfile.skills ?? ""}
+                                            onChange={(e) =>
+                                                setPublicProfile({ ...publicProfile, skills: e.target.value })
+                                            }
+                                        />
+
+                                    </div>
+
+                                    <button
+                                        onClick={savePublicProfile}
+                                        className="w-full py-3 rounded-xl font-bold text-white bg-[#38B2AC] hover:bg-[#319795] transition shadow"
+                                    >
+                                        {savingProfile ? "저장 중..." : "포트폴리오 저장"}
+                                    </button>
+                                </div>
+
+                                <OtherPeopleSection />
+
                             </div>
                         ) : (
-                            <div className="bg-white rounded-xl border p-10 text-center">
+                            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-10 text-center text-gray-500 dark:text-gray-400">
                                 로딩 중...
                             </div>
                         )
                     )}
-        </main>
+
+                </main>
 
                 <aside className="lg:col-span-3">
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
