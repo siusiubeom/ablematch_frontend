@@ -39,7 +39,7 @@ type FeedPost = {
 
 export default function CommunityPage() {
     const router = useRouter();
-
+    const [tab, setTab] = useState<"feed" | "portfolio">("feed");
     const [feedLoading, setFeedLoading] = useState(true);
     const [initialFeedLoaded, setInitialFeedLoaded] = useState(false);
     const [jobsLoading, setJobsLoading] = useState(true);
@@ -59,6 +59,35 @@ export default function CommunityPage() {
     const [boardJobs, setBoardJobs] = useState<JobBoardItem[]>([]);
 
     const API_BASE = BASE_URL;
+
+    type PublicProfile = {
+        headline: string | null;
+        bio: string | null;
+        portfolioUrl: string | null;
+        githubUrl: string | null;
+        linkedinUrl: string | null;
+        skills: string | null;
+    };
+
+    const [publicProfile, setPublicProfile] = useState<PublicProfile | null>(null);
+    const [savingProfile, setSavingProfile] = useState(false);
+
+    useEffect(() => {
+        if (tab !== "portfolio") return;
+        apiFetch<PublicProfile>("/api/me/public-profile").then(setPublicProfile);
+    }, [tab]);
+    async function savePublicProfile() {
+        if (!publicProfile) return;
+        setSavingProfile(true);
+
+        await apiFetch("/api/me/public-profile", {
+            method: "PUT",
+            body: JSON.stringify(publicProfile),
+        });
+
+        setSavingProfile(false);
+    }
+
 
     async function loadFeed() {
         if (!initialFeedLoaded) setFeedLoading(true);
@@ -175,33 +204,69 @@ export default function CommunityPage() {
 
                 <main className="lg:col-span-6 space-y-6">
 
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-            <textarea
-                value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-                className="w-full border border-gray-200 rounded p-3 text-sm text-gray-800"
-                rows={3}
-                placeholder="무엇을 공유하고 싶으신가요?"
-            />
+                    <div className="flex rounded-xl p-1 border bg-white">
+                        <button
+                            onClick={() => setTab("feed")}
+                            className={`flex-1 py-3 font-bold rounded-lg ${
+                                tab === "feed"
+                                    ? "bg-[#1A365D] text-white shadow"
+                                    : "text-gray-500"
+                            }`}
+                        >
+                            커뮤니티
+                        </button>
 
-                        <div className="flex gap-2 mt-2">
-                            {newImages.map((img) => (
-                                <img key={img} src={`${API_BASE}${img}`} className="w-16 h-16 rounded object-cover" />
-                            ))}
-                        </div>
-
-                        <div className="flex justify-between mt-3">
-                            <label className="cursor-pointer flex items-center gap-2 text-sm text-gray-600">
-                                <ImagePlus size={18} />
-                                이미지
-                                <input hidden type="file" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) uploadImage(f);}}/>
-                            </label>
-
-                            <button onClick={createPost} className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]">
-                                게시하기
-                            </button>
-                        </div>
+                        <button
+                            onClick={() => setTab("portfolio")}
+                            className={`flex-1 py-3 font-bold rounded-lg ${
+                                tab === "portfolio"
+                                    ? "bg-[#1A365D] text-white shadow"
+                                    : "text-gray-500"
+                            }`}
+                        >
+                            내 포트폴리오
+                        </button>
                     </div>
+                    {tab === "feed" && (
+                        <>
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+      <textarea
+          value={newPost}
+          onChange={(e) => setNewPost(e.target.value)}
+          className="w-full border border-gray-200 rounded p-3 text-sm text-gray-800"
+          rows={3}
+          placeholder="무엇을 공유하고 싶으신가요?"
+      />
+
+                                <div className="flex gap-2 mt-2">
+                                    {newImages.map((img) => (
+                                        <img key={img} src={`${API_BASE}${img}`} className="w-16 h-16 rounded object-cover" />
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-between mt-3">
+                                    <label className="cursor-pointer flex items-center gap-2 text-sm text-gray-600">
+                                        <ImagePlus size={18} />
+                                        이미지
+                                        <input
+                                            hidden
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const f = e.target.files?.[0];
+                                                if (f) uploadImage(f);
+                                            }}
+                                        />
+                                    </label>
+
+                                    <button
+                                        onClick={createPost}
+                                        className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]"
+                                    >
+                                        게시하기
+                                    </button>
+                                </div>
+                            </div>
 
                     {posts.map((post) => (
                         <div key={post.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
@@ -255,7 +320,71 @@ export default function CommunityPage() {
                             )}
                         </div>
                     ))}
-                </main>
+            </>
+            )}
+                    {tab === "portfolio" && (
+                        publicProfile ? (
+                            <div className="bg-white rounded-xl border p-6 space-y-4">
+                                <input
+                                    className="w-full border p-2 rounded"
+                                    placeholder="Headline"
+                                    value={publicProfile.headline ?? ""}
+                                    onChange={(e) =>
+                                        setPublicProfile({ ...publicProfile, headline: e.target.value })
+                                    }
+                                />
+
+                                <textarea
+                                    className="w-full border p-2 rounded"
+                                    rows={4}
+                                    placeholder="Bio"
+                                    value={publicProfile.bio ?? ""}
+                                    onChange={(e) =>
+                                        setPublicProfile({ ...publicProfile, bio: e.target.value })
+                                    }
+                                />
+
+                                <input
+                                    className="w-full border p-2 rounded"
+                                    placeholder="Portfolio URL"
+                                    value={publicProfile.portfolioUrl ?? ""}
+                                    onChange={(e) =>
+                                        setPublicProfile({ ...publicProfile, portfolioUrl: e.target.value })
+                                    }
+                                />
+
+                                <input
+                                    className="w-full border p-2 rounded"
+                                    placeholder="GitHub URL"
+                                    value={publicProfile.githubUrl ?? ""}
+                                    onChange={(e) =>
+                                        setPublicProfile({ ...publicProfile, githubUrl: e.target.value })
+                                    }
+                                />
+
+                                <input
+                                    className="w-full border p-2 rounded"
+                                    placeholder="LinkedIn URL"
+                                    value={publicProfile.linkedinUrl ?? ""}
+                                    onChange={(e) =>
+                                        setPublicProfile({ ...publicProfile, linkedinUrl: e.target.value })
+                                    }
+                                />
+
+                                <button
+                                    onClick={savePublicProfile}
+                                    className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]"
+                                >
+                                    {savingProfile ? "저장 중..." : "저장"}
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-xl border p-10 text-center">
+                                로딩 중...
+                            </div>
+                        )
+                    )}
+        </main>
 
                 <aside className="lg:col-span-3">
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
