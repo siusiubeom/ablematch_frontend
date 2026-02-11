@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, BASE_URL } from "@/lib/api";
 import { JobBoardItem, UserProfile } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { getProfileImage } from "@/lib/profileImage";
@@ -36,7 +36,6 @@ type FeedPost = {
     isOwner: boolean;
     isLikedByMe: boolean;
 };
-import { BASE_URL } from "@/lib/api";
 
 export default function CommunityPage() {
     const router = useRouter();
@@ -69,7 +68,9 @@ export default function CommunityPage() {
         setInitialFeedLoaded(true);
     }
 
-    useEffect(() => { loadFeed(); }, []);
+    useEffect(() => {
+        loadFeed();
+    }, []);
 
     useEffect(() => {
         apiFetch<UserProfile>("/api/me/profile")
@@ -78,7 +79,9 @@ export default function CommunityPage() {
     }, []);
 
     async function loadComments(postId: string) {
-        const res = await apiFetch<Comment[]>(`/api/community/${postId}/comments`);
+        const res = await apiFetch<Comment[]>(
+            `/api/community/${postId}/comments`
+        );
         if (!res) return;
         setComments((prev) => ({ ...prev, [postId]: res }));
     }
@@ -152,47 +155,49 @@ export default function CommunityPage() {
 
             <section className="w-full max-w-[1600px] mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-gray-50 min-h-screen">
 
-                {/* LEFT SIDEBAR */}
-                <aside className="lg:col-span-3">
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                        <div className="h-20 bg-[#1A365D]" />
-                        <div className="p-6 text-center text-gray-800">
-                            {profileLoading ? (
-                                <div className="animate-pulse space-y-3">
-                                    <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto" />
-                                    <div className="h-4 bg-gray-200 rounded w-24 mx-auto" />
-                                </div>
-                            ) : profile ? (
-                                <>
-                                    <img
-                                        src={getProfileImage(profile.profileImageUrl)}
-                                        className="w-24 h-24 rounded-full border-4 border-white -mt-16 mx-auto object-cover"
-                                    />
-                                    <h2 className="font-bold text-lg mt-4 text-gray-800">{profile.name}</h2>
-                                    <p className="text-sm text-gray-500">{profile.preferredRole}</p>
-                                </>
-                            ) : null}
-                        </div>
-                    </div>
-                </aside>
-
                 <main className="lg:col-span-6 space-y-6">
 
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                        <textarea
-                            value={newPost}
-                            onChange={(e) => setNewPost(e.target.value)}
-                            className="w-full border border-gray-200 rounded p-3 text-sm text-gray-800"
-                            rows={3}
-                            placeholder="무엇을 공유하고 싶으신가요?"
-                        />
+            <textarea
+                value={newPost}
+                onChange={(e) => setNewPost(e.target.value)}
+                className="w-full border border-gray-200 rounded p-3 text-sm text-gray-800"
+                rows={3}
+                placeholder="무엇을 공유하고 싶으신가요?"
+            />
 
-                        <button
-                            onClick={createPost}
-                            className="mt-3 px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]"
-                        >
-                            게시하기
-                        </button>
+                        <div className="flex gap-2 mt-2">
+                            {newImages.map((img) => (
+                                <img
+                                    key={img}
+                                    src={`${API_BASE}${img}`}
+                                    className="w-16 h-16 rounded object-cover"
+                                />
+                            ))}
+                        </div>
+
+                        <div className="flex justify-between mt-3">
+                            <label className="cursor-pointer flex items-center gap-2 text-sm text-gray-600">
+                                <ImagePlus size={18} />
+                                이미지
+                                <input
+                                    hidden
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) uploadImage(file);
+                                    }}
+                                />
+                            </label>
+
+                            <button
+                                onClick={createPost}
+                                className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]"
+                            >
+                                게시하기
+                            </button>
+                        </div>
                     </div>
 
                     {posts.map((post) => (
@@ -204,6 +209,18 @@ export default function CommunityPage() {
                             </p>
 
                             <p className="text-sm text-gray-800 mt-2">{post.content}</p>
+
+                            {post.imageUrls.length > 0 && (
+                                <div className="grid grid-cols-2 gap-2 mt-3">
+                                    {post.imageUrls.map((url) => (
+                                        <img
+                                            key={url}
+                                            src={`${API_BASE}${url}`}
+                                            className="rounded object-cover w-full"
+                                        />
+                                    ))}
+                                </div>
+                            )}
 
                             <div className="flex gap-6 mt-4 text-sm text-gray-500 border-t border-gray-200 pt-3">
                                 <button
@@ -218,6 +235,7 @@ export default function CommunityPage() {
                                 </button>
                             </div>
 
+                            {/* COMMENTS */}
                             {expandedPost === post.id && (
                                 <div className="mt-4 border-t border-gray-200 pt-4 space-y-3">
 
@@ -252,30 +270,6 @@ export default function CommunityPage() {
                         </div>
                     ))}
                 </main>
-
-                <aside className="lg:col-span-3">
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-gray-800">
-                        <h3 className="font-bold flex items-center gap-2 mb-4 text-gray-800">
-                            <Briefcase size={18} />
-                            최신 채용 공고
-                        </h3>
-
-                        {boardJobs.slice(0, 4).map((job) => (
-                            <div key={job.id} className="border-b border-gray-200 py-3">
-                                <p className="text-sm font-semibold text-gray-800">{job.title}</p>
-                                <p className="text-xs text-gray-500">{job.company}</p>
-                                <div className="flex gap-3 text-xs text-gray-400 mt-1">
-                                    <span className="flex items-center gap-1">
-                                        <Eye size={12} /> {job.viewCount}
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                        <Heart size={12} /> {job.likeCount}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </aside>
             </section>
         </>
     );
