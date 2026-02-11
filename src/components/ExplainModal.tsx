@@ -8,12 +8,30 @@ interface Props {
     data: MatchingExplain;
     sourceUrl: string;
     company: string;
+    jobId: string;
     onClose: () => void;
 }
 
 
 
-export default function ExplainModal({ data, company, onClose, sourceUrl }: Props) {
+export default function ExplainModal({ data, company, onClose, sourceUrl, jobId }: Props) {
+
+    const [aiReco, setAiReco] = useState<string | null>(null);
+    const [loadingReco, setLoadingReco] = useState(false);
+
+    async function fetchReco() {
+        if (aiReco || loadingReco) return;
+
+        setLoadingReco(true);
+        try {
+            const res = await apiFetch<{ message: string }>(
+                `/api/matching/${jobId}/recommendation`
+            );
+            setAiReco(res.message);
+        } finally {
+            setLoadingReco(false);
+        }
+    }
 
 
     function mulberry32(seed: number) {
@@ -74,6 +92,8 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
 
         return () => clearInterval(interval);
     }, []);
+
+    const [mapCoords, setMapCoords] = useState<{ lat: number; lng: number } | null>(null);
 
 
     const [distanceError, setDistanceError] = useState(false);
@@ -156,7 +176,13 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
                 const addr = response.v2.addresses[0];
                 console.log("FOUND ADDRESS:", addr);
 
-                const latlng = new window.naver.maps.LatLng(addr.y, addr.x);
+                const lat = parseFloat(addr.y);
+                const lng = parseFloat(addr.x);
+
+                setMapCoords({ lat, lng });
+
+                const latlng = new window.naver.maps.LatLng(lat, lng);
+
 
                 const map = new window.naver.maps.Map(mapDiv, {
                     center: latlng,
@@ -173,6 +199,14 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
     }, [company, data.companyAddress, naverReady]);
 
 
+    function openNaverMapPage() {
+        if (!mapCoords) return;
+
+        const { lat, lng } = mapCoords;
+        const url = `https://map.naver.com/v5/?c=${lng},${lat},15,0,0,0,dh`;
+
+        window.open(url, "_blank");
+    }
 
 
     const roleBase = [
@@ -216,7 +250,12 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center px-4">
             <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-6">
                 {company && (
-                    <div id="naver-map" className="w-full h-40 rounded-lg mb-4" />
+                    <div
+                        id="naver-map"
+                        className="w-full h-40 rounded-lg mb-4 cursor-pointer"
+                        onDoubleClick={openNaverMapPage}
+                    />
+
 
                 )}
                 <div className="flex justify-between items-start">
@@ -282,6 +321,21 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
                         </div>
                     )}
                 </div>
+                {aiReco && (
+                    <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-sm font-semibold">
+                        {aiReco}
+                    </div>
+                )}
+
+                <button
+                    onClick={fetchReco}
+                    disabled={loadingReco}
+                    className="px-5 py-2 rounded-lg bg-indigo-500 text-white font-bold hover:bg-indigo-600 disabled:opacity-50"
+                >
+                    {loadingReco ? "생성 중..." : "AI 추천 활동 보기"}
+                </button>
+
+
 
                 <div className="flex justify-end gap-3 pt-4 border-t">
                     <button

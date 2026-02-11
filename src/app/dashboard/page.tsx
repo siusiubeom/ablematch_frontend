@@ -531,12 +531,14 @@ export default function Dashboard() {
                     data={explain}
                     sourceUrl={selectedJob.sourceUrl}
                     company={selectedJob.company}
+                    jobId={selectedJob.jobId}
                     onClose={() => {
                         setExplain(null);
                         setSelectedJob(null);
                     }}
                 />
             )}
+
         </>
     );
 }
