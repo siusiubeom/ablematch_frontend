@@ -355,6 +355,25 @@ export default function CommunityPage() {
         setSavingProfile(false);
     }
 
+    async function deletePost(postId: string) {
+        if (!confirm("게시글을 삭제하시겠습니까?")) return;
+
+        await apiFetch(`/api/community/post/${postId}`, {
+            method: "DELETE",
+        });
+
+        loadFeed();
+    }
+    async function deleteComment(commentId: string, postId: string) {
+        await apiFetch(`/api/community/comment/${commentId}`, {
+            method: "DELETE",
+        });
+
+        await loadComments(postId);
+        loadFeed();
+    }
+
+
 
     async function loadFeed() {
         if (!initialFeedLoaded) setFeedLoading(true);
@@ -615,6 +634,14 @@ export default function CommunityPage() {
                                         {new Date(post.createdAt).toLocaleDateString()}
                                     </p>
                                 </div>
+                                {post.isOwner && (
+                                    <button
+                                        onClick={() => deletePost(post.id)}
+                                        className="text-xs text-red-500 font-bold ml-auto"
+                                    >
+                                        삭제
+                                    </button>
+                                )}
                             </div>
 
                             <p className="text-sm text-gray-800 mt-2">{post.content}</p>
@@ -636,10 +663,21 @@ export default function CommunityPage() {
 
                             {expandedPost===post.id && (
                                 <div className="mt-4 border-t border-gray-200 pt-4 space-y-3">
-                                    {(comments[post.id]||[]).map(c=>(
-                                        <div key={c.id} className="bg-gray-50 rounded p-3">
-                                            <p className="text-xs font-semibold text-gray-700">{c.authorAlias}</p>
-                                            <p className="text-sm text-gray-800">{c.content}</p>
+                                    {(comments[post.id] || []).map((c) => (
+                                        <div key={c.id} className="bg-gray-50 rounded p-3 flex justify-between items-start">
+                                            <div>
+                                                <p className="text-xs font-semibold text-gray-700">{c.authorAlias}</p>
+                                                <p className="text-sm text-gray-800">{c.content}</p>
+                                            </div>
+
+                                            {c.isOwner && (
+                                                <button
+                                                    onClick={() => deleteComment(c.id, post.id)}
+                                                    className="text-xs text-red-400 font-bold ml-2"
+                                                >
+                                                    삭제
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                     <div className="flex gap-2">
@@ -650,6 +688,7 @@ export default function CommunityPage() {
                                         <button onClick={()=>createComment(post.id)}
                                                 className="px-3 py-2 bg-[#38B2AC] text-white rounded text-sm">등록</button>
                                     </div>
+
                                 </div>
                             )}
                         </div>
