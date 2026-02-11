@@ -201,7 +201,7 @@ bg-white text-gray-900 placeholder-gray-400 border-gray-300
 focus:outline-none focus:ring-2 focus:ring-[#38B2AC]
 "
         rows={3}
-        placeholder="커리어 고민이나 정보를 공유해보세요..."
+        placeholder="채용 공고를 올려보세요..."
     />
                         <div className="flex justify-end mt-3">
                             <button
