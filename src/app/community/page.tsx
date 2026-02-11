@@ -823,15 +823,16 @@ export default function CommunityPage() {
                                                     className="border rounded-xl p-4 flex gap-4 items-start bg-white"
                                                 >
                                                     <div className="relative">
-                                                        <img
-                                                            src={
-                                                                exp.imageUrl
-                                                                    ? `${API_BASE}${exp.imageUrl}`
-                                                                    : "/placeholder.png"
-                                                            }
-                                                            className="w-20 h-20 rounded object-cover border"
-                                                        />
-
+                                                        {exp.imageUrl ? (
+                                                            <img
+                                                                src={`${API_BASE}${exp.imageUrl}`}
+                                                                className="w-20 h-20 rounded object-cover border"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-20 h-20 rounded border bg-gray-100 flex items-center justify-center">
+                                                                <BriefcaseBusiness size={28} className="text-gray-400" />
+                                                            </div>
+                                                            )}
                                                         <label className="absolute bottom-0 right-0 bg-white border rounded-full px-2 py-1 text-xs cursor-pointer shadow">
                                                             ✏️
                                                             <input
@@ -846,7 +847,6 @@ export default function CommunityPage() {
                                                         </label>
                                                     </div>
 
-                                                    {/* TEXT RIGHT */}
                                                     <div className="flex-1 text-black">
                                                         <div className="flex justify-between">
                                                             <div>
@@ -999,7 +999,7 @@ export default function CommunityPage() {
                                                         Portfolio URL
                                                     </label>
                                                     <input
-                                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
+                                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm text-black bg-white placeholder:text-gray-400"
                                                         value={publicProfile.portfolioUrl ?? ""}
                                                         onChange={(e) =>
                                                             setPublicProfile({ ...publicProfile, portfolioUrl: e.target.value })
@@ -1013,7 +1013,7 @@ export default function CommunityPage() {
                                                         GitHub URL
                                                     </label>
                                                     <input
-                                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
+                                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm text-black bg-white placeholder:text-gray-400"
                                                         value={publicProfile.githubUrl ?? ""}
                                                         onChange={(e) =>
                                                             setPublicProfile({ ...publicProfile, githubUrl: e.target.value })
@@ -1027,7 +1027,7 @@ export default function CommunityPage() {
                                                         LinkedIn URL
                                                     </label>
                                                     <input
-                                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
+                                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm text-black bg-white placeholder:text-gray-400"
                                                         value={publicProfile.linkedinUrl ?? ""}
                                                         onChange={(e) =>
                                                             setPublicProfile({ ...publicProfile, linkedinUrl: e.target.value })
@@ -1036,6 +1036,7 @@ export default function CommunityPage() {
                                                     />
                                                 </div>
                                             </div>
+
 
                                             <div>
                                                 <label className="block text-xs font-bold text-gray-600 mb-1">
