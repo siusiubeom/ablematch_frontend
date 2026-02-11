@@ -205,8 +205,19 @@ export default function CommunityPage() {
 
                     {posts.map((post) => (
                         <div key={post.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                            <p className="font-bold text-sm text-gray-800">{post.authorName}</p>
-                            <p className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
+                            <div className="flex items-center gap-3 mb-3">
+                                <img
+                                    src={getProfileImage(post.authorProfileImage)}
+                                    className="w-10 h-10 rounded-full object-cover"
+                                />
+                                <div>
+                                    <p className="font-bold text-sm text-gray-800">{post.authorName}</p>
+                                    <p className="text-xs text-gray-500">
+                                        {new Date(post.createdAt).toLocaleDateString()}
+                                    </p>
+                                </div>
+                            </div>
+
                             <p className="text-sm text-gray-800 mt-2">{post.content}</p>
 
                             {post.imageUrls.length > 0 && (
