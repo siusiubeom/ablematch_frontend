@@ -20,6 +20,16 @@ import {
     BriefcaseBusiness,
 } from "lucide-react";
 
+type Experience = {
+    id: string;
+    company: string;
+    title: string;
+    location?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    description?: string | null;
+    imageUrl?: string | null;
+};
 
 type Comment = {
     id: string;
@@ -130,6 +140,7 @@ function SectionCard({
 }
 
 
+
 function OtherPeopleSection() {
     const [people, setPeople] = useState<PublicProfileView[]>([]);
     const [open, setOpen] = useState(false);
@@ -154,6 +165,8 @@ function OtherPeopleSection() {
     }
 
     if (people.length === 0) return null;
+
+
 
     return (
         <>
@@ -418,6 +431,61 @@ export default function CommunityPage() {
             setJobsLoading(false);
         });
     }, []);
+
+    const [experiences, setExperiences] = useState<Experience[]>([]);
+    const [expLoading, setExpLoading] = useState(false);
+
+    const [newExp, setNewExp] = useState({
+        company: "",
+        title: "",
+        location: "",
+        startDate: "",
+        endDate: "",
+        description: "",
+    });
+    useEffect(() => {
+        if (tab !== "portfolio") return;
+
+        setExpLoading(true);
+        apiFetch<Experience[]>("/api/me/experience")
+            .then((res) => res && setExperiences(res))
+            .finally(() => setExpLoading(false));
+    }, [tab]);
+    async function createExperience() {
+        await apiFetch("/api/me/experience", {
+            method: "POST",
+            body: JSON.stringify(newExp),
+        });
+
+        setNewExp({
+            company: "",
+            title: "",
+            location: "",
+            startDate: "",
+            endDate: "",
+            description: "",
+        });
+
+        const res = await apiFetch<Experience[]>("/api/me/experience");
+        if (res) setExperiences(res);
+    }
+    async function uploadExpImage(id: string, file: File) {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const form = new FormData();
+        form.append("file", file);
+
+        await fetch(`${API_BASE}/api/me/experience/${id}/image`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: form,
+        });
+
+        const res = await apiFetch<Experience[]>("/api/me/experience");
+        if (res) setExperiences(res);
+    }
+
 
     return (
         <>
@@ -688,10 +756,78 @@ export default function CommunityPage() {
                                         title="경력"
                                         icon={<BriefcaseBusiness size={16} className="text-gray-700" />}
                                     >
-                                        <div className="text-sm text-gray-600">
-                                            아직 경력 섹션이 없습니다. (추후: Experience 엔티티/테이블 추가)
+                                        <div className="space-y-4">
+
+                                            {experiences.map((exp) => (
+                                                <div key={exp.id} className="border rounded-xl p-4 space-y-2">
+                                                    <div className="flex justify-between">
+                                                        <div>
+                                                            <div className="font-bold text-gray-900">{exp.title}</div>
+                                                            <div className="text-sm text-gray-600">{exp.company}</div>
+                                                            <div className="text-xs text-gray-500">
+                                                                {exp.startDate} ~ {exp.endDate || "현재"}
+                                                            </div>
+                                                        </div>
+
+                                                        <label className="cursor-pointer text-sm text-[#0A66C2]">
+                                                            이미지
+                                                            <input
+                                                                hidden
+                                                                type="file"
+                                                                onChange={(e) => {
+                                                                    const f = e.target.files?.[0];
+                                                                    if (f) uploadExpImage(exp.id, f);
+                                                                }}
+                                                            />
+                                                        </label>
+                                                    </div>
+
+                                                    {exp.imageUrl && (
+                                                        <img
+                                                            src={`${API_BASE}${exp.imageUrl}`}
+                                                            className="w-20 h-20 rounded object-cover"
+                                                        />
+                                                    )}
+
+                                                    {exp.description && (
+                                                        <p className="text-sm text-gray-700">{exp.description}</p>
+                                                    )}
+                                                </div>
+                                            ))}
+
+                                            <div className="border rounded-xl p-4 space-y-2">
+                                                <input
+                                                    placeholder="회사"
+                                                    value={newExp.company}
+                                                    onChange={(e) => setNewExp({ ...newExp, company: e.target.value })}
+                                                    className="w-full border rounded p-2"
+                                                />
+                                                <input
+                                                    placeholder="직함"
+                                                    value={newExp.title}
+                                                    onChange={(e) => setNewExp({ ...newExp, title: e.target.value })}
+                                                    className="w-full border rounded p-2"
+                                                />
+                                                <textarea
+                                                    placeholder="설명"
+                                                    value={newExp.description}
+                                                    onChange={(e) =>
+                                                        setNewExp({ ...newExp, description: e.target.value })
+                                                    }
+                                                    className="w-full border rounded p-2"
+                                                />
+
+                                                <button
+                                                    onClick={createExperience}
+                                                    className="px-4 py-2 bg-[#0A66C2] text-white rounded font-bold"
+                                                >
+                                                    추가
+                                                </button>
+                                            </div>
+
                                         </div>
                                     </SectionCard>
+
 
                                     <SectionCard
                                         title="학력"
