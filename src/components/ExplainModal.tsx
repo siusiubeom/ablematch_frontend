@@ -336,20 +336,22 @@ export default function ExplainModal({ data, company, onClose, sourceUrl, jobId 
                 )}
 
 
-                <button
-                    onClick={fetchReco}
-                    disabled={loadingReco}
-                    className="
-    px-5 py-2 rounded-lg
-    border border-gray-300
-    text-gray-700 font-bold
-    hover:bg-gray-100
-    disabled:opacity-50
-    transition
-  "
-                >
-                    {loadingReco ? "생성 중..." : "AI 추천 활동 보기"}
-                </button>
+                {!aiReco && (
+                    <button
+                        onClick={fetchReco}
+                        disabled={loadingReco}
+                        className="
+      px-5 py-2 rounded-lg
+      border border-gray-300
+      text-gray-700 font-bold
+      hover:bg-gray-100
+      disabled:opacity-50
+      transition
+    "
+                    >
+                        {loadingReco ? "생성 중..." : "AI 추천 활동 보기"}
+                    </button>
+                )}
 
 
 
