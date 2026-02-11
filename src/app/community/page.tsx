@@ -7,6 +7,19 @@ import { JobBoardItem, UserProfile } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { getProfileImage } from "@/lib/profileImage";
 import { MessageSquare, User, ImagePlus, Briefcase, Eye, Heart } from "lucide-react";
+import {
+    MapPin,
+    ExternalLink,
+    Github,
+    Linkedin,
+    Pencil,
+    X,
+    UserPlus,
+    Users,
+    GraduationCap,
+    BriefcaseBusiness,
+} from "lucide-react";
+
 
 type Comment = {
     id: string;
@@ -31,47 +44,241 @@ type FeedPost = {
     isLikedByMe: boolean;
 };
 
+type PublicProfileView = {
+    userId: string;
+    name: string;
+    headline: string | null;
+    bio: string | null;
+    profileImageUrl: string | null;
+    skills: string | null;
+};
+
+function normalizeUrl(url?: string | null) {
+    if (!url) return null;
+    const u = url.trim();
+    if (!u) return null;
+    if (u.startsWith("http://") || u.startsWith("https://")) return u;
+    return `https://${u}`;
+}
+
+function splitSkills(skills?: string | null) {
+    if (!skills) return [];
+    return skills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 30);
+}
+
+function PillLink({
+                      icon,
+                      label,
+                      href,
+                  }: {
+    icon: React.ReactNode;
+    label: string;
+    href?: string | null;
+}) {
+    const url = normalizeUrl(href);
+    const disabled = !url;
+
+    return (
+        <a
+            href={url ?? undefined}
+            target={url ? "_blank" : undefined}
+            rel={url ? "noopener noreferrer" : undefined}
+            className={[
+                "inline-flex items-center gap-2 px-3 py-2 rounded-full border text-sm font-semibold transition",
+                disabled
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-200 text-gray-800 hover:bg-gray-50",
+            ].join(" ")}
+            onClick={(e) => {
+                if (!url) e.preventDefault();
+            }}
+        >
+            {icon}
+            {label}
+            {url && <ExternalLink size={14} className="opacity-60" />}
+        </a>
+    );
+}
+
+function SectionCard({
+                         title,
+                         icon,
+                         children,
+                         right,
+                     }: {
+    title: string;
+    icon?: React.ReactNode;
+    children: React.ReactNode;
+    right?: React.ReactNode;
+}) {
+    return (
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    {icon}
+                    <h3 className="font-bold text-gray-900">{title}</h3>
+                </div>
+                {right}
+            </div>
+            <div className="px-6 py-5">{children}</div>
+        </div>
+    );
+}
+
+
 function OtherPeopleSection() {
-    const [people, setPeople] = useState<any[]>([]);
+    const [people, setPeople] = useState<PublicProfileView[]>([]);
+    const [open, setOpen] = useState(false);
+    const [detailLoading, setDetailLoading] = useState(false);
+    const [detail, setDetail] = useState<PublicProfileView | null>(null);
 
     useEffect(() => {
-        apiFetch("/api/public-profile/list").then((res: any) => {
+        apiFetch<PublicProfileView[]>("/api/public-profile/list").then((res) => {
             if (res) setPeople(res);
         });
     }, []);
 
+    async function openUser(userId: string) {
+        setOpen(true);
+        setDetail(null);
+        setDetailLoading(true);
+
+        const res = await apiFetch<PublicProfileView>(`/api/public-profile/${userId}`);
+        if (res) setDetail(res);
+
+        setDetailLoading(false);
+    }
+
     if (people.length === 0) return null;
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-            <h3 className="font-bold mb-4 text-gray-900">
-                다른 사용자 둘러보기
-            </h3>
+        <>
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+                <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                        <Users size={16} />
+                        다른 사용자 둘러보기
+                    </h3>
+                    <span className="text-xs text-gray-400">추천</span>
+                </div>
 
-            <div className="space-y-3">
-                {people.map((p) => (
+                <div className="space-y-2">
+                    {people.map((p) => (
+                        <div
+                            key={p.userId}
+                            className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"
+                            onClick={() => openUser(p.userId)}
+                        >
+                            <img
+                                src={getProfileImage(p.profileImageUrl)}
+                                className="w-11 h-11 rounded-full object-cover border border-gray-100"
+                                alt={p.name}
+                            />
+                            <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-sm text-gray-900 truncate">
+                                    {p.name}
+                                </p>
+                                <p className="text-xs text-gray-500 truncate">
+                                    {p.headline ?? ""}
+                                </p>
+                            </div>
+
+                            <button
+                                className="shrink-0 px-3 py-1.5 rounded-full border border-gray-200 text-xs font-bold text-gray-800 hover:bg-gray-50"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                }}
+                            >
+                <span className="inline-flex items-center gap-1">
+                  <UserPlus size={14} />
+                  연결
+                </span>
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {open && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+                    onClick={() => setOpen(false)}
+                >
                     <div
-                        key={p.userId}
-                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition"
+                        className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
                     >
-                        <img
-                            src={getProfileImage(p.profileImageUrl)}
-                            className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <div className="flex-1">
-                            <p className="font-semibold text-sm text-gray-900">
-                                {p.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                                {p.headline}
-                            </p>
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                            <div className="font-bold text-gray-900">프로필 보기</div>
+                            <button
+                                className="p-2 rounded-lg hover:bg-gray-100"
+                                onClick={() => setOpen(false)}
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        <div className="p-6">
+                            {detailLoading ? (
+                                <div className="space-y-3">
+                                    <div className="h-5 w-40 bg-gray-100 rounded" />
+                                    <div className="h-4 w-64 bg-gray-100 rounded" />
+                                    <div className="h-24 bg-gray-100 rounded" />
+                                </div>
+                            ) : detail ? (
+                                <div className="space-y-5">
+                                    <div className="flex items-start gap-4">
+                                        <img
+                                            src={getProfileImage(detail.profileImageUrl)}
+                                            className="w-20 h-20 rounded-full object-cover border border-gray-100"
+                                            alt={detail.name}
+                                        />
+                                        <div className="flex-1">
+                                            <div className="text-xl font-bold text-gray-900">
+                                                {detail.name}
+                                            </div>
+                                            <div className="text-sm text-gray-600 mt-1">
+                                                {detail.headline ?? ""}
+                                            </div>
+                                            {detail.bio && (
+                                                <div className="text-sm text-gray-600 mt-3 whitespace-pre-line">
+                                                    {detail.bio}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {splitSkills(detail.skills).length > 0 && (
+                                        <div>
+                                            <div className="font-bold text-gray-900 mb-2">Skills</div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {splitSkills(detail.skills).map((s) => (
+                                                    <span
+                                                        key={s}
+                                                        className="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold"
+                                                    >
+                            {s}
+                          </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="text-sm text-gray-500">불러오지 못했습니다.</div>
+                            )}
                         </div>
                     </div>
-                ))}
-            </div>
-        </div>
+                </div>
+            )}
+        </>
     );
 }
+
 
 
 
@@ -364,103 +571,280 @@ export default function CommunityPage() {
             )}
                     {tab === "portfolio" && (
                         publicProfile ? (
-                            <div className="space-y-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                                    <div className="h-32 bg-[#1A365D]" />
+                                <div className="lg:col-span-8 space-y-6">
 
-                                    <div className="px-8 pb-8">
-                                        <img
-                                            src={getProfileImage(profile?.profileImageUrl)}
-                                            className="w-32 h-32 rounded-full border-4 border-white -mt-16 object-cover"
-                                        />
+                                    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                                        <div className="h-36 bg-gradient-to-r from-[#1A365D] to-[#2C5282]" />
 
-                                        <h2 className="text-2xl font-bold mt-4 text-gray-900">
-                                            {profile?.name}
-                                        </h2>
+                                        <div className="px-6 pb-6">
+                                            <div className="flex items-end justify-between">
+                                                <img
+                                                    src={getProfileImage(profile?.profileImageUrl)}
+                                                    className="w-32 h-32 rounded-full border-4 border-white -mt-16 object-cover bg-gray-200"
+                                                    alt="avatar"
+                                                />
 
-                                        <p className="text-gray-600 mt-1">
-                                            {publicProfile.headline || profile?.preferredRole}
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        className="px-4 py-2 rounded-full border border-gray-200 font-bold text-sm text-gray-800 hover:bg-gray-50 transition"
+                                                        onClick={() => {
+                                                            // scroll to edit section if you want, or keep as is
+                                                            const el = document.getElementById("public-profile-edit");
+                                                            el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                                                        }}
+                                                    >
+                  <span className="inline-flex items-center gap-2">
+                    <Pencil size={16} />
+                    프로필 편집
+                  </span>
+                                                    </button>
+
+                                                    <button
+                                                        className="px-4 py-2 rounded-full font-bold text-sm text-white bg-[#0A66C2] hover:bg-[#004182] transition"
+                                                        onClick={savePublicProfile}
+                                                    >
+                                                        {savingProfile ? "저장 중..." : "저장"}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4">
+                                                <h2 className="text-2xl font-bold text-gray-900">
+                                                    {profile?.name ?? "이름"}
+                                                </h2>
+
+                                                <p className="text-gray-700 mt-1">
+                                                    {publicProfile.headline || profile?.preferredRole || "Headline"}
+                                                </p>
+
+                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-gray-600">
+                                                    {profile?.location && (
+                                                        <span className="inline-flex items-center gap-1">
+                    <MapPin size={16} />
+                                                            {profile.location}
+                  </span>
+                                                    )}
+
+                                                    {profile?.major && (
+                                                        <span className="inline-flex items-center gap-1">
+                    <GraduationCap size={16} />
+                                                            {profile.major}
+                  </span>
+                                                    )}
+
+                                                    {profile?.gpa && (
+                                                        <span className="text-gray-500">
+                    GPA {profile.gpa}
+                  </span>
+                                                    )}
+                                                </div>
+
+                                                <div className="mt-4 flex flex-wrap gap-2">
+                                                    <PillLink
+                                                        icon={<ExternalLink size={16} />}
+                                                        label="Portfolio"
+                                                        href={publicProfile.portfolioUrl}
+                                                    />
+                                                    <PillLink
+                                                        icon={<Github size={16} />}
+                                                        label="GitHub"
+                                                        href={publicProfile.githubUrl}
+                                                    />
+                                                    <PillLink
+                                                        icon={<Linkedin size={16} />}
+                                                        label="LinkedIn"
+                                                        href={publicProfile.linkedinUrl}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <SectionCard
+                                        title="소개"
+                                        icon={<User size={16} className="text-gray-700" />}
+                                        right={
+                                            <button
+                                                className="text-sm font-bold text-[#0A66C2] hover:underline"
+                                                onClick={() => {
+                                                    const el = document.getElementById("public-profile-edit");
+                                                    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                                                }}
+                                            >
+                                                편집
+                                            </button>
+                                        }
+                                    >
+                                        <p className="text-sm text-gray-700 whitespace-pre-line">
+                                            {publicProfile.bio?.trim()
+                                                ? publicProfile.bio
+                                                : "자기소개를 추가해 보세요. (예: 어떤 분야에 관심이 있고, 어떤 경험을 했는지)"}
                                         </p>
+                                    </SectionCard>
 
-                                        {publicProfile.bio && (
-                                            <p className="text-sm text-gray-500 mt-3">
-                                                {publicProfile.bio}
-                                            </p>
+                                    <SectionCard
+                                        title="경력"
+                                        icon={<BriefcaseBusiness size={16} className="text-gray-700" />}
+                                    >
+                                        <div className="text-sm text-gray-600">
+                                            아직 경력 섹션이 없습니다. (추후: Experience 엔티티/테이블 추가)
+                                        </div>
+                                    </SectionCard>
+
+                                    <SectionCard
+                                        title="학력"
+                                        icon={<GraduationCap size={16} className="text-gray-700" />}
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center font-bold text-gray-700">
+                                                🎓
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="font-bold text-gray-900">
+                                                    {profile?.major ?? "전공"}
+                                                </div>
+                                                <div className="text-sm text-gray-600 mt-1">
+                                                    {profile?.preferredRole ?? "관심 직무"}
+                                                </div>
+                                                {profile?.gpa && (
+                                                    <div className="text-xs text-gray-500 mt-1">GPA {profile.gpa}</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </SectionCard>
+
+                                    <SectionCard
+                                        title="기술"
+                                        icon={<Briefcase size={16} className="text-gray-700" />}
+                                    >
+                                        {splitSkills(publicProfile.skills).length > 0 ? (
+                                            <div className="flex flex-wrap gap-2">
+                                                {splitSkills(publicProfile.skills).map((s) => (
+                                                    <span
+                                                        key={s}
+                                                        className="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold"
+                                                    >
+                  {s}
+                </span>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-sm text-gray-600">
+                                                아직 등록된 기술이 없습니다. 아래에서 Skills를 추가해 보세요.
+                                            </div>
                                         )}
+                                    </SectionCard>
+
+                                    <div id="public-profile-edit" className="bg-white rounded-2xl border border-gray-200 shadow-sm">
+                                        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                                            <div className="font-bold text-gray-900">프로필 편집</div>
+                                            <button
+                                                onClick={savePublicProfile}
+                                                className="px-4 py-2 rounded-full font-bold text-sm text-white bg-[#0A66C2] hover:bg-[#004182] transition"
+                                            >
+                                                {savingProfile ? "저장 중..." : "저장"}
+                                            </button>
+                                        </div>
+
+                                        <div className="px-6 py-5 space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-600 mb-1">
+                                                    Headline
+                                                </label>
+                                                <input
+                                                    className="w-full border border-gray-200 rounded-lg p-3 text-sm text-gray-900"
+                                                    value={publicProfile.headline ?? ""}
+                                                    onChange={(e) =>
+                                                        setPublicProfile({ ...publicProfile, headline: e.target.value })
+                                                    }
+                                                    placeholder="예) Backend Engineer | ML | Vet AI"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-600 mb-1">
+                                                    Bio
+                                                </label>
+                                                <textarea
+                                                    className="w-full border border-gray-200 rounded-lg p-3 text-sm text-gray-900"
+                                                    rows={5}
+                                                    value={publicProfile.bio ?? ""}
+                                                    onChange={(e) =>
+                                                        setPublicProfile({ ...publicProfile, bio: e.target.value })
+                                                    }
+                                                    placeholder="자기소개를 작성하세요..."
+                                                />
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                <div>
+                                                    <label className="block text-xs font-bold text-gray-600 mb-1">
+                                                        Portfolio URL
+                                                    </label>
+                                                    <input
+                                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
+                                                        value={publicProfile.portfolioUrl ?? ""}
+                                                        onChange={(e) =>
+                                                            setPublicProfile({ ...publicProfile, portfolioUrl: e.target.value })
+                                                        }
+                                                        placeholder="https://..."
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-xs font-bold text-gray-600 mb-1">
+                                                        GitHub URL
+                                                    </label>
+                                                    <input
+                                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
+                                                        value={publicProfile.githubUrl ?? ""}
+                                                        onChange={(e) =>
+                                                            setPublicProfile({ ...publicProfile, githubUrl: e.target.value })
+                                                        }
+                                                        placeholder="https://github.com/..."
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-xs font-bold text-gray-600 mb-1">
+                                                        LinkedIn URL
+                                                    </label>
+                                                    <input
+                                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
+                                                        value={publicProfile.linkedinUrl ?? ""}
+                                                        onChange={(e) =>
+                                                            setPublicProfile({ ...publicProfile, linkedinUrl: e.target.value })
+                                                        }
+                                                        placeholder="https://linkedin.com/in/..."
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-600 mb-1">
+                                                    Skills (comma separated)
+                                                </label>
+                                                <input
+                                                    className="w-full border border-gray-200 rounded-lg p-3 text-sm"
+                                                    value={publicProfile.skills ?? ""}
+                                                    onChange={(e) =>
+                                                        setPublicProfile({ ...publicProfile, skills: e.target.value })
+                                                    }
+                                                    placeholder="React, Spring, ML, ..."
+                                                />
+                                                <p className="text-xs text-gray-400 mt-2">
+                                                    예: React, Spring, Machine Learning
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 space-y-5">
-                                    <h3 className="font-bold text-lg text-gray-900">
-                                        프로필 편집
-                                    </h3>
-
-                                    <input
-                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm text-gray-900"
-                                        placeholder="Headline"
-                                        value={publicProfile.headline ?? ""}
-                                        onChange={(e) =>
-                                            setPublicProfile({ ...publicProfile, headline: e.target.value })
-                                        }
-                                    />
-
-                                    <textarea
-                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm text-gray-900"
-                                        rows={4}
-                                        placeholder="Bio"
-                                        value={publicProfile.bio ?? ""}
-                                        onChange={(e) =>
-                                            setPublicProfile({ ...publicProfile, bio: e.target.value })
-                                        }
-                                    />
-
-                                    <input
-                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
-                                        placeholder="Portfolio URL"
-                                        value={publicProfile.portfolioUrl ?? ""}
-                                        onChange={(e) =>
-                                            setPublicProfile({ ...publicProfile, portfolioUrl: e.target.value })
-                                        }
-                                    />
-
-                                    <input
-                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
-                                        placeholder="GitHub URL"
-                                        value={publicProfile.githubUrl ?? ""}
-                                        onChange={(e) =>
-                                            setPublicProfile({ ...publicProfile, githubUrl: e.target.value })
-                                        }
-                                    />
-
-                                    <input
-                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
-                                        placeholder="LinkedIn URL"
-                                        value={publicProfile.linkedinUrl ?? ""}
-                                        onChange={(e) =>
-                                            setPublicProfile({ ...publicProfile, linkedinUrl: e.target.value })
-                                        }
-                                    />
-
-                                    <input
-                                        className="w-full border border-gray-200 rounded-lg p-3 text-sm"
-                                        placeholder="Skills (comma separated)"
-                                        value={publicProfile.skills ?? ""}
-                                        onChange={(e) =>
-                                            setPublicProfile({ ...publicProfile, skills: e.target.value })
-                                        }
-                                    />
-
-                                    <button
-                                        onClick={savePublicProfile}
-                                        className="w-full py-3 rounded-xl font-bold text-white bg-[#0A66C2] hover:bg-[#004182] transition"
-                                    >
-                                        {savingProfile ? "저장 중..." : "저장"}
-                                    </button>
+                                <div className="lg:col-span-4 space-y-6">
+                                    <OtherPeopleSection />
                                 </div>
-
-                                <OtherPeopleSection />
-
                             </div>
                         ) : (
                             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 text-center text-gray-500">
@@ -468,6 +852,7 @@ export default function CommunityPage() {
                             </div>
                         )
                     )}
+
 
 
                 </main>
