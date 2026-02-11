@@ -571,9 +571,9 @@ export default function CommunityPage() {
             )}
                     {tab === "portfolio" && (
                         publicProfile ? (
-                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            <div className="space-y-6">
 
-                                <div className="lg:col-span-8 space-y-6">
+                                <div className="space-y-6">
 
                                     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                                         <div className="h-36 bg-gradient-to-r from-[#1A365D] to-[#2C5282]" />
@@ -842,9 +842,7 @@ export default function CommunityPage() {
                                     </div>
                                 </div>
 
-                                <div className="lg:col-span-4 space-y-6">
-                                    <OtherPeopleSection />
-                                </div>
+                                <OtherPeopleSection />
                             </div>
                         ) : (
                             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 text-center text-gray-500">
