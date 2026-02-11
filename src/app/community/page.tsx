@@ -68,9 +68,7 @@ export default function CommunityPage() {
         setInitialFeedLoaded(true);
     }
 
-    useEffect(() => {
-        loadFeed();
-    }, []);
+    useEffect(() => { loadFeed(); }, []);
 
     useEffect(() => {
         apiFetch<UserProfile>("/api/me/profile")
@@ -79,9 +77,7 @@ export default function CommunityPage() {
     }, []);
 
     async function loadComments(postId: string) {
-        const res = await apiFetch<Comment[]>(
-            `/api/community/${postId}/comments`
-        );
+        const res = await apiFetch<Comment[]>(`/api/community/${postId}/comments`);
         if (!res) return;
         setComments((prev) => ({ ...prev, [postId]: res }));
     }
@@ -155,6 +151,28 @@ export default function CommunityPage() {
 
             <section className="w-full max-w-[1600px] mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-gray-50 min-h-screen">
 
+                <aside className="lg:col-span-3">
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="h-20 bg-[#1A365D]" />
+                        <div className="p-6 text-center">
+                            {profileLoading ? (
+                                <div className="animate-pulse space-y-3">
+                                    <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto" />
+                                </div>
+                            ) : profile ? (
+                                <>
+                                    <img
+                                        src={getProfileImage(profile.profileImageUrl)}
+                                        className="w-24 h-24 rounded-full border-4 border-white -mt-16 mx-auto object-cover"
+                                    />
+                                    <h2 className="font-bold text-lg mt-4 text-gray-800">{profile.name}</h2>
+                                    <p className="text-sm text-gray-500">{profile.preferredRole}</p>
+                                </>
+                            ) : null}
+                        </div>
+                    </div>
+                </aside>
+
                 <main className="lg:col-span-6 space-y-6">
 
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
@@ -168,11 +186,7 @@ export default function CommunityPage() {
 
                         <div className="flex gap-2 mt-2">
                             {newImages.map((img) => (
-                                <img
-                                    key={img}
-                                    src={`${API_BASE}${img}`}
-                                    className="w-16 h-16 rounded object-cover"
-                                />
+                                <img key={img} src={`${API_BASE}${img}`} className="w-16 h-16 rounded object-cover" />
                             ))}
                         </div>
 
@@ -180,21 +194,10 @@ export default function CommunityPage() {
                             <label className="cursor-pointer flex items-center gap-2 text-sm text-gray-600">
                                 <ImagePlus size={18} />
                                 이미지
-                                <input
-                                    hidden
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) uploadImage(file);
-                                    }}
-                                />
+                                <input hidden type="file" accept="image/*" onChange={(e)=>{const f=e.target.files?.[0]; if(f) uploadImage(f);}}/>
                             </label>
 
-                            <button
-                                onClick={createPost}
-                                className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]"
-                            >
+                            <button onClick={createPost} className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]">
                                 게시하기
                             </button>
                         </div>
@@ -202,74 +205,65 @@ export default function CommunityPage() {
 
                     {posts.map((post) => (
                         <div key={post.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-
                             <p className="font-bold text-sm text-gray-800">{post.authorName}</p>
-                            <p className="text-xs text-gray-500">
-                                {new Date(post.createdAt).toLocaleDateString()}
-                            </p>
-
+                            <p className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
                             <p className="text-sm text-gray-800 mt-2">{post.content}</p>
 
                             {post.imageUrls.length > 0 && (
                                 <div className="grid grid-cols-2 gap-2 mt-3">
                                     {post.imageUrls.map((url) => (
-                                        <img
-                                            key={url}
-                                            src={`${API_BASE}${url}`}
-                                            className="rounded object-cover w-full"
-                                        />
+                                        <img key={url} src={`${API_BASE}${url}`} className="rounded object-cover w-full"/>
                                     ))}
                                 </div>
                             )}
 
                             <div className="flex gap-6 mt-4 text-sm text-gray-500 border-t border-gray-200 pt-3">
-                                <button
-                                    onClick={() => {
-                                        if (expandedPost === post.id) setExpandedPost(null);
-                                        else { setExpandedPost(post.id); loadComments(post.id); }
-                                    }}
-                                    className="flex items-center gap-1"
-                                >
-                                    <MessageSquare size={16} />
-                                    {post.commentCount}
+                                <button onClick={()=>{expandedPost===post.id?setExpandedPost(null):(setExpandedPost(post.id),loadComments(post.id));}}
+                                        className="flex items-center gap-1">
+                                    <MessageSquare size={16}/> {post.commentCount}
                                 </button>
                             </div>
 
-                            {/* COMMENTS */}
-                            {expandedPost === post.id && (
+                            {expandedPost===post.id && (
                                 <div className="mt-4 border-t border-gray-200 pt-4 space-y-3">
-
-                                    {(comments[post.id] || []).map((c) => (
+                                    {(comments[post.id]||[]).map(c=>(
                                         <div key={c.id} className="bg-gray-50 rounded p-3">
                                             <p className="text-xs font-semibold text-gray-700">{c.authorAlias}</p>
                                             <p className="text-sm text-gray-800">{c.content}</p>
                                         </div>
                                     ))}
-
                                     <div className="flex gap-2">
-                                        <input
-                                            value={newComment[post.id] || ""}
-                                            onChange={(e) =>
-                                                setNewComment((p) => ({
-                                                    ...p,
-                                                    [post.id]: e.target.value,
-                                                }))
-                                            }
-                                            className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-800"
-                                            placeholder="댓글 작성..."
-                                        />
-                                        <button
-                                            onClick={() => createComment(post.id)}
-                                            className="px-3 py-2 bg-[#38B2AC] text-white rounded text-sm"
-                                        >
-                                            등록
-                                        </button>
+                                        <input value={newComment[post.id]||""}
+                                               onChange={e=>setNewComment(p=>({...p,[post.id]:e.target.value}))}
+                                               className="flex-1 border border-gray-200 rounded px-3 py-2 text-sm text-gray-800"
+                                               placeholder="댓글 작성..."/>
+                                        <button onClick={()=>createComment(post.id)}
+                                                className="px-3 py-2 bg-[#38B2AC] text-white rounded text-sm">등록</button>
                                     </div>
                                 </div>
                             )}
                         </div>
                     ))}
                 </main>
+
+                <aside className="lg:col-span-3">
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+                        <h3 className="font-bold flex items-center gap-2 mb-4 text-gray-800">
+                            <Briefcase size={18}/> 최신 채용 공고
+                        </h3>
+                        {boardJobs.slice(0,4).map(job=>(
+                            <div key={job.id} className="border-b border-gray-200 py-3">
+                                <p className="text-sm font-semibold text-gray-800">{job.title}</p>
+                                <p className="text-xs text-gray-500">{job.company}</p>
+                                <div className="flex gap-3 text-xs text-gray-400 mt-1">
+                                    <span className="flex items-center gap-1"><Eye size={12}/> {job.viewCount}</span>
+                                    <span className="flex items-center gap-1"><Heart size={12}/> {job.likeCount}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </aside>
+
             </section>
         </>
     );
