@@ -271,7 +271,7 @@ export default function ExplainModal({ data, company, onClose, sourceUrl }: Prop
                         </p>
                     ) : (
                         <div className="flex flex-wrap gap-2">
-                            {data.missingSkills.map((s) => (
+                            {data.missingSkills.slice(0,5).map((s) => (
                                 <span
                                     key={s}
                                     className="px-3 py-1 text-xs font-bold rounded-full bg-gray-100 text-gray-700"

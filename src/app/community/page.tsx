@@ -34,6 +34,8 @@ type FeedPost = {
 };
 
 
+
+
 export default function CommunityPage() {
     const router = useRouter();
 
