@@ -61,21 +61,15 @@ export default function CommunityPage() {
 
     const API_BASE = BASE_URL;
 
-
     async function loadFeed() {
         if (!initialFeedLoaded) setFeedLoading(true);
-
         const res = await apiFetch<FeedPost[]>("/api/community/feed");
         if (res) setPosts(res);
-
         setFeedLoading(false);
         setInitialFeedLoaded(true);
     }
 
-    useEffect(() => {
-        loadFeed();
-    }, []);
-
+    useEffect(() => { loadFeed(); }, []);
 
     useEffect(() => {
         apiFetch<UserProfile>("/api/me/profile")
@@ -83,11 +77,8 @@ export default function CommunityPage() {
             .finally(() => setProfileLoading(false));
     }, []);
 
-
     async function loadComments(postId: string) {
-        const res = await apiFetch<Comment[]>(
-            `/api/community/${postId}/comments`
-        );
+        const res = await apiFetch<Comment[]>(`/api/community/${postId}/comments`);
         if (!res) return;
         setComments((prev) => ({ ...prev, [postId]: res }));
     }
@@ -108,7 +99,6 @@ export default function CommunityPage() {
         await loadComments(postId);
         loadFeed();
     }
-
 
     async function uploadImage(file: File) {
         const token = localStorage.getItem("token");
@@ -162,212 +152,92 @@ export default function CommunityPage() {
 
             <section className="w-full max-w-[1600px] mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-gray-50 min-h-screen">
 
-                <aside className="lg:col-span-3">
-                    <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                        <div className="h-20 bg-[#1A365D]" />
-                        <div className="p-6 text-center">
-                            {profileLoading ? (
-                                <div className="animate-pulse space-y-3">
-                                    <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto" />
-                                    <div className="h-4 bg-gray-200 rounded w-24 mx-auto" />
-                                    <div className="h-3 bg-gray-200 rounded w-16 mx-auto" />
-                                </div>
-                            ) : profile ? (
-                                <>
-                                    <img
-                                        src={getProfileImage(profile.profileImageUrl)}
-                                        className="w-24 h-24 rounded-full border-4 border-white -mt-16 mx-auto object-cover"
-                                    />
-                                    <h2 className="font-bold text-lg mt-4">{profile.name}</h2>
-                                    <p className="text-sm text-gray-500">
-                                        {profile.preferredRole}
-                                    </p>
-                                </>
-                            ) : (
-                                <button
-                                    onClick={() => router.push("/landing")}
-                                    className="bg-[#38B2AC] text-white px-4 py-2 rounded"
-                                >
-                                    이력서 업로드
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </aside>
-
                 <main className="lg:col-span-6 space-y-6">
 
                     <div className="bg-white rounded-xl border shadow-sm p-5">
-            <textarea
-                value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-                className="w-full border rounded p-3 text-sm"
-                rows={3}
-                placeholder="무엇을 공유하고 싶으신가요?"
-                disabled={posting}
-            />
-
-                        <div className="flex gap-2 mt-2">
-                            {newImages.map((img) => (
-                                <img
-                                    key={img}
-                                    src={`${API_BASE}${img}`}
-                                    className="w-16 h-16 rounded object-cover"
-                                />
-                            ))}
-                        </div>
+                        <textarea
+                            value={newPost}
+                            onChange={(e) => setNewPost(e.target.value)}
+                            className="w-full border rounded p-3 text-sm text-gray-800"
+                            rows={3}
+                            placeholder="무엇을 공유하고 싶으신가요?"
+                            disabled={posting}
+                        />
 
                         <div className="flex justify-between mt-3">
-                            <label className="cursor-pointer flex items-center gap-2 text-sm text-gray-600">
-                                <ImagePlus size={18} />
-                                이미지
-                                <input
-                                    hidden
-                                    disabled={posting}
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) uploadImage(file);
-                                    }}
-                                />
-                            </label>
-
                             <button
                                 onClick={createPost}
                                 disabled={posting}
-                                className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC] disabled:opacity-50"
+                                className="px-5 py-2 rounded-lg font-bold text-white bg-[#38B2AC]"
                             >
-                                {posting ? "게시 중..." : "게시하기"}
+                                게시하기
                             </button>
                         </div>
                     </div>
-                    {feedLoading ? (
-                        <div className="space-y-4">
-                            {[1, 2, 3].map((i) => (
-                                <div
-                                    key={i}
-                                    className="bg-white p-6 rounded-xl border shadow-sm animate-pulse"
+
+                    {posts.map((post) => (
+                        <div key={post.id} className="bg-white p-6 rounded-xl border shadow-sm">
+
+                            <p className="font-bold text-sm text-gray-800">{post.authorName}</p>
+                            <p className="text-xs text-gray-500">
+                                {new Date(post.createdAt).toLocaleDateString()}
+                            </p>
+
+                            <p className="text-sm text-gray-800 mt-2">{post.content}</p>
+
+                            <div className="flex gap-6 mt-4 text-sm text-gray-500 border-t pt-3">
+                                <button
+                                    onClick={() => {
+                                        if (expandedPost === post.id) {
+                                            setExpandedPost(null);
+                                        } else {
+                                            setExpandedPost(post.id);
+                                            loadComments(post.id);
+                                        }
+                                    }}
+                                    className="flex items-center gap-1"
                                 >
-                                    <div className="flex gap-3 mb-3">
-                                        <div className="w-10 h-10 rounded-full bg-gray-200" />
-                                        <div className="flex-1 space-y-2">
-                                            <div className="h-3 bg-gray-200 rounded w-24" />
-                                            <div className="h-2 bg-gray-200 rounded w-16" />
+                                    <MessageSquare size={16} />
+                                    {post.commentCount}
+                                </button>
+                            </div>
+
+                            {expandedPost === post.id && (
+                                <div className="mt-4 border-t pt-4 space-y-3">
+
+                                    {(comments[post.id] || []).map((c) => (
+                                        <div key={c.id} className="bg-gray-50 rounded p-3">
+                                            <p className="text-xs font-semibold text-gray-700">
+                                                {c.authorAlias}
+                                            </p>
+                                            <p className="text-sm text-gray-800">{c.content}</p>
                                         </div>
-                                    </div>
-                                    <div className="h-3 bg-gray-200 rounded w-full mb-2" />
-                                    <div className="h-3 bg-gray-200 rounded w-5/6" />
-                                </div>
-                            ))}
-                        </div>
-                    ) : posts.length === 0 ? (
-                        <div className="text-center text-gray-400 py-10">
-                            아직 게시글이 없습니다
-                        </div>
-                    ) : (
-                        posts.map((post) => (
-                            <div
-                                key={post.id}
-                                className="bg-white p-6 rounded-xl border shadow-sm"
-                            >
-                                <div className="flex items-center gap-3 mb-3">
-                                    <img
-                                        src={getProfileImage(post.authorProfileImage)}
-                                        className="w-10 h-10 rounded-full object-cover"
-                                    />
-                                    <div>
-                                        <p className="font-bold text-sm">{post.authorName}</p>
-                                        <p className="text-xs text-gray-500">
-                                            {new Date(post.createdAt).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                </div>
+                                    ))}
 
-                                <p className="text-sm text-gray-700">{post.content}</p>
-
-                                {post.imageUrls.length > 0 && (
-                                    <div className="grid grid-cols-2 gap-2 mt-3">
-                                        {post.imageUrls.map((url) => (
-                                            <img
-                                                key={url}
-                                                src={`${API_BASE}${url}`}
-                                                className="rounded object-cover w-full"
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-
-                                <div className="flex gap-6 mt-4 text-sm text-gray-500 border-t pt-3">
-                                    <button
-                                        onClick={async () => {
-                                            await apiFetch(`/api/community/${post.id}/like`, {
-                                                method: "POST",
-                                            });
-                                            loadFeed();
-                                        }}
-                                        className={`flex items-center gap-1 ${
-                                            post.isLikedByMe ? "text-red-500" : ""
-                                        }`}
-                                    >
-                                        <Heart
-                                            size={16}
-                                            fill={post.isLikedByMe ? "red" : "none"}
-                                        />
-                                        {post.likeCount}
-                                    </button>
-
-                                    <button
-                                        onClick={() => {
-                                            if (expandedPost === post.id) {
-                                                setExpandedPost(null);
-                                            } else {
-                                                setExpandedPost(post.id);
-                                                loadComments(post.id);
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={newComment[post.id] || ""}
+                                            onChange={(e) =>
+                                                setNewComment((p) => ({
+                                                    ...p,
+                                                    [post.id]: e.target.value,
+                                                }))
                                             }
-                                        }}
-                                        className="flex items-center gap-1"
-                                    >
-                                        <MessageSquare size={16} />
-                                        {post.commentCount}
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </main>
-
-                <aside className="lg:col-span-3">
-                    <div className="bg-white rounded-xl border shadow-sm p-5">
-                        <h3 className="font-bold flex items-center gap-2 mb-4">
-                            <Briefcase size={18} />
-                            최신 채용 공고
-                        </h3>
-
-                        {jobsLoading ? (
-                            <div className="space-y-3 animate-pulse">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="h-10 bg-gray-200 rounded" />
-                                ))}
-                            </div>
-                        ) : (
-                            boardJobs.slice(0, 4).map((job) => (
-                                <div key={job.id} className="border-b py-3">
-                                    <p className="text-sm font-semibold">{job.title}</p>
-                                    <p className="text-xs text-gray-500">{job.company}</p>
-                                    <div className="flex gap-3 text-xs text-gray-400 mt-1">
-                    <span className="flex items-center gap-1">
-                      <Eye size={12} /> {job.viewCount}
-                    </span>
-                                        <span className="flex items-center gap-1">
-                      <Heart size={12} /> {job.likeCount}
-                    </span>
+                                            className="flex-1 border rounded px-3 py-2 text-sm text-gray-800"
+                                            placeholder="댓글 작성..."
+                                        />
+                                        <button
+                                            onClick={() => createComment(post.id)}
+                                            className="px-3 py-2 bg-[#38B2AC] text-white rounded text-sm"
+                                        >
+                                            등록
+                                        </button>
                                     </div>
                                 </div>
-                            ))
-                        )}
-                    </div>
-                </aside>
+                            )}
+                        </div>
+                    ))}
+                </main>
             </section>
         </>
     );
